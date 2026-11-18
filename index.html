@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
-<!-- ADSENSE: cuando te aprueben, pega aquí el <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXX"> -->
+<!-- ADSENSE: no pegues nada aquí. Rellena CONFIG.ANUNCIOS en el script y el código de AdSense se carga solo. Para ver los huecos sin AdSense, abre la web con ?huecos al final de la dirección. -->
 <style>
   :root{
     --bg:#0c0d1a; --bg2:#14162b; --card:#1a1d38; --line:#2b2f55; --text:#e9ebff; --muted:#9097c4;
@@ -199,7 +199,14 @@
   .yday b{color:var(--text)}
   .yday a{margin-left:auto}
   @media (max-width:480px){.answers.cols{grid-template-columns:1fr}}
+  /* --- huecos de anuncios --- */
   .ad-slot{margin:22px 0 0}
+  .ad-slot:empty,.ad-slot[hidden]{display:none}
+  .ad-lbl{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:#5e6390;text-align:center;margin-bottom:4px}
+  .ad-slot ins{display:block;min-height:100px}
+  .ad-slot ins[data-ad-status="unfilled"]{display:none!important}
+  .ad-prev{border:2px dashed #4b5196;border-radius:14px;min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#8a90c4;font-size:13px;background:#ffffff05;text-align:center;padding:10px}
+  .ad-prev b{color:#cfd3ff;font-size:14px}
   footer{color:#5e6390;font-size:12px;text-align:center;margin-top:34px;line-height:1.7}
   footer nav{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;margin-bottom:8px}
   footer a{color:#8a90c4;text-decoration:none}
@@ -235,14 +242,16 @@
     <div class="menu-grid">
       <button class="tile" id="tilePractice"><div class="ico">🎲</div><b>Práctica libre</b><span>Partidas aleatorias ilimitadas. No cuentan para tu racha.</span></button>
       <a class="tile" href="#juegos"><div class="ico">🕹️</div><b>Descubre los juegos</b><span id="tileGames">De qué va cada juego y cómo empezar.</span></a>
-      <a class="tile" href="#como-jugar"><div class="ico">📖</div><b>Cómo se juega</b><span>Rarezas, vidas y puntuación.</span></a>
+      <a class="tile" href="#como-jugar"><div class="ico">📖</div><b>Cómo se juega</b><span>Rarezas, tiempo y puntuación.</span></a>
       <a class="tile" href="#preguntas"><div class="ico">💬</div><b>Preguntas frecuentes</b><span>Todo sobre LEGENDARIO.</span></a>
     </div>
+
+    <div class="ad-slot" data-hueco="inicio_medio"></div>
 
     <div class="section-title">Juegos que pueden salir</div>
     <div class="strip" id="gameStrip"></div>
 
-    <!-- ADSENSE: bloque de anuncio del menú -->
+    <div class="ad-slot" data-hueco="inicio_final"></div>
   </section>
 
   <!-- ============ PARTIDA (diaria o práctica) ============ -->
@@ -250,7 +259,8 @@
     <a class="back" href="#inicio">← Menú</a>
     <div class="pills" id="pills"></div>
     <div id="main"></div>
-    <!-- ADSENSE: bloque de anuncio bajo la partida (nunca entre el campo de texto y los botones) -->
+    <!-- Solo aparece en la pantalla de resultados: nunca durante una pregunta, para evitar clics sin querer -->
+    <div class="ad-slot" data-hueco="resultados" id="adResultados" hidden></div>
   </section>
 
   <!-- ============ CATÁLOGO DE JUEGOS ============ -->
@@ -302,6 +312,7 @@
       <p>Todo el mundo recibe las mismas 5 preguntas cada día, así que puedes comparar tu resultado con tus amigos. El reto cambia a las 00:00 (hora peninsular española). Al acabar puedes copiar tu resultado con emojis para compartirlo y ver todas las respuestas posibles ordenadas por rareza.</p>
       <a class="btn wide" href="#jugar">¡Entendido, a jugar!</a>
     </div>
+    <div class="ad-slot" data-hueco="textos"></div>
   </section>
 
   <!-- ============ PREGUNTAS FRECUENTES ============ -->
@@ -327,6 +338,7 @@
       <details><summary>¿Tenéis relación con los juegos que aparecen?</summary><p>No. LEGENDARIO es un proyecto independiente hecho por fans y no está afiliado, patrocinado ni respaldado por ninguna de las compañías propietarias de los juegos mencionados. Todas las marcas pertenecen a sus respectivos dueños y solo se citan para identificar los juegos.</p></details>
       <details><summary>¿Por qué hay anuncios?</summary><p>Los anuncios permiten que el juego siga siendo gratis para todo el mundo y que podamos seguir añadiendo preguntas. Intentamos que no molesten: nunca aparecen en mitad de una pregunta.</p></details>
     </div>
+    <div class="ad-slot" data-hueco="textos"></div>
   </section>
 
   <!-- ============ PRIVACIDAD Y COOKIES ============ -->
@@ -370,7 +382,6 @@
     </div>
   </section>
 
-  <!-- ADSENSE: hueco opcional de anuncio global (debajo de todo) -->
 
   <footer>
     <nav>
@@ -418,7 +429,22 @@
    ========================================================= */
 const CONFIG = {
   SUPABASE_URL: 'https://qldaxtyfapopdneyrnnn.supabase.co',
-  SUPABASE_KEY: 'sb_publishable_nsN5F1GRlNZu_oSq95GUxg_iZPsObfL'
+  SUPABASE_KEY: 'sb_publishable_nsN5F1GRlNZu_oSq95GUxg_iZPsObfL',
+  /* ANUNCIOS (Google AdSense). Cuando te aprueben:
+     · CLIENTE: tu ID de editor, tipo 'ca-pub-1234567890123456'
+     · HUECOS: el "data-ad-slot" de cada bloque que crees en AdSense (Anuncios → Por bloque de anuncios).
+       Un hueco vacío no muestra nada.
+     Para ver dónde va cada hueco sin AdSense, abre la web con ?huecos al final de la dirección. */
+  ANUNCIOS: {
+    CLIENTE: '',
+    HUECOS: {
+      inicio_medio: '',   // menú, entre las tarjetas y la lista de juegos
+      inicio_final: '',   // menú, al final
+      resultados:   '',   // pantalla de resultados (nunca durante una pregunta)
+      juegos:       '',   // «Descubre los juegos», tras la 3ª ficha
+      textos:       ''    // final de «Cómo se juega» y «Preguntas frecuentes»
+    }
+  }
 };
 
 /* ===== NÚCLEO COMPARTIDO (web y editor) ===== */
@@ -761,6 +787,7 @@ async function startYesterday(){
 
 async function renderRound(){
   stopTimer(); busy=false;
+  $('#adResultados').hidden = true;
   const i=S.cur, q=S.preguntas[i], g=gameById(q.juego_id);
   renderPills();
   let deadline;
@@ -1004,10 +1031,12 @@ async function showResults(diaPasado){
     catch(e){ const f=$('#fallback'); f.style.display='block'; f.value=txt; f.select(); m.textContent='Cópialo desde aquí:'; }
   });
   const ag=$('#again'); if (ag) ag.addEventListener('click', ()=>startPractice(S.modo==='practica'?practiceGid:null));
+  $('#adResultados').hidden = false; rellenarAnuncios();
   tickClock();
 }
 
 function startPractice(gid){
+  $('#adResultados').hidden = true;
   practiceGid = gid || null;
   if (location.hash!=='#practica') location.hash='practica';
   else { showView('jugar'); startPracticeFlow(); scrollTo(0,0); }
@@ -1075,8 +1104,36 @@ function renderGames(){
         <!-- AFILIADOS: aquí podrías poner un enlace "Consíguelo aquí" con tu enlace de afiliado -->
       </div>
     </div>`;
-  }).join('') + `<div class="game suggest">¿Echas en falta algún juego? Pronto habrá más.</div>`;
+  }).map((html,i)=> i===2 ? html + '<div class="ad-slot" data-hueco="juegos"></div>' : html).join('') + `<div class="game suggest">¿Echas en falta algún juego? Pronto habrá más.</div>`;
   document.querySelectorAll('[data-practice]').forEach(b=>b.addEventListener('click',()=>startPractice(b.dataset.practice)));
+}
+
+/* ---------- anuncios ---------- */
+const ADS = CONFIG.ANUNCIOS || {};
+const VER_HUECOS = /[?&]huecos\b/.test(location.search);
+const NOMBRES_HUECO = {inicio_medio:'Menú · centro', inicio_final:'Menú · final', resultados:'Pantalla de resultados', juegos:'Descubre los juegos', textos:'Páginas de información'};
+let adsCargado = false;
+function cargarAdSense(){
+  if (adsCargado || !ADS.CLIENTE) return; adsCargado = true;
+  const sc = document.createElement('script');
+  sc.async = true; sc.crossOrigin = 'anonymous';
+  sc.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' + encodeURIComponent(ADS.CLIENTE);
+  document.head.appendChild(sc);
+}
+function rellenarAnuncios(){
+  document.querySelectorAll('.ad-slot:not([data-lleno])').forEach(el=>{
+    if (el.hidden || !el.offsetParent) return;          // AdSense necesita que el hueco sea visible
+    const h = el.dataset.hueco, slot = ADS.HUECOS && ADS.HUECOS[h];
+    if (ADS.CLIENTE && slot){
+      cargarAdSense();
+      el.innerHTML = `<div class="ad-lbl">Publicidad</div><ins class="adsbygoogle" style="display:block" data-ad-client="${esc(ADS.CLIENTE)}" data-ad-slot="${esc(slot)}" data-ad-format="auto" data-full-width-responsive="true"></ins>`;
+      try { (window.adsbygoogle = window.adsbygoogle || []).push({}); } catch(e){}
+      el.dataset.lleno = '1';
+    } else if (VER_HUECOS){
+      el.innerHTML = `<div class="ad-lbl">Publicidad</div><div class="ad-prev"><b>📢 Hueco de anuncio</b><span>${esc(NOMBRES_HUECO[h]||h)} · <code>${esc(h)}</code></span></div>`;
+      el.dataset.lleno = '1';
+    }
+  });
 }
 
 /* ---------- navegación ---------- */
@@ -1087,6 +1144,7 @@ const TITLES={inicio:'LEGENDARIO · el reto diario de videojuegos', jugar:'Reto 
 let scrollToGame=null;
 function showView(id){
   stopTimer();
+  const ar=$('#adResultados'); if (ar) ar.hidden = true;
   document.querySelectorAll('section.view').forEach(s=>s.classList.toggle('on', s.id==='v-'+id));
 }
 function route(){
@@ -1105,6 +1163,7 @@ function route(){
   const target = scrollToGame && document.getElementById('juego-'+scrollToGame);
   scrollToGame = null;
   if (target && v==='juegos') target.scrollIntoView({block:'start'}); else scrollTo(0,0);
+  rellenarAnuncios();
 }
 window.addEventListener('hashchange', route);
 document.addEventListener('click', e=>{
