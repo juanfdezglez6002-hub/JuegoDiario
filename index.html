@@ -434,8 +434,11 @@ const CONFIG = {
      · CLIENTE: tu ID de editor, tipo 'ca-pub-1234567890123456'
      · HUECOS: el "data-ad-slot" de cada bloque que crees en AdSense (Anuncios → Por bloque de anuncios).
        Un hueco vacío no muestra nada.
-     Para ver dónde va cada hueco sin AdSense, abre la web con ?huecos al final de la dirección. */
+     MOSTRAR_HUECOS: true enseña recuadros "Hueco de anuncio" a TODOS los visitantes mientras montas la web.
+       ⚠️ Ponlo en false antes de pedir AdSense (los recuadros vacíos dan imagen de web sin terminar).
+       Con false, puedes seguir viéndolos tú abriendo la web con ?huecos al final de la dirección. */
   ANUNCIOS: {
+    MOSTRAR_HUECOS: true,
     CLIENTE: '',
     HUECOS: {
       inicio_medio: '',   // menú, entre las tarjetas y la lista de juegos
@@ -1110,7 +1113,7 @@ function renderGames(){
 
 /* ---------- anuncios ---------- */
 const ADS = CONFIG.ANUNCIOS || {};
-const VER_HUECOS = /[?&]huecos\b/.test(location.search);
+const VER_HUECOS = !!ADS.MOSTRAR_HUECOS || /[?&]huecos\b/.test(location.search);
 const NOMBRES_HUECO = {inicio_medio:'Menú · centro', inicio_final:'Menú · final', resultados:'Pantalla de resultados', juegos:'Descubre los juegos', textos:'Páginas de información'};
 let adsCargado = false;
 function cargarAdSense(){
