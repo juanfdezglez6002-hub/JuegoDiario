@@ -1,0 +1,7 @@
+# ⚠️ Archivos PRIVADOS: contienen todas las respuestas. Nunca deben subirse a este repositorio público.
+banco.json
+editor.html
+02_datos_iniciales.sql
+supabase/02_datos_iniciales.sql
+*.privado.*
+privado/

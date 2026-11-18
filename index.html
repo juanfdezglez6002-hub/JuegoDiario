@@ -183,6 +183,22 @@
   .ginfo li{font-size:14px;color:#c8cbf0;padding-left:22px;position:relative}
   .ginfo li::before{content:'✓';position:absolute;left:4px;color:var(--ok);font-weight:700}
   .tip{background:#141733;border-left:3px solid var(--l);border-radius:10px;padding:10px 12px;font-size:14px;color:#d9dcff;line-height:1.5}
+  /* --- % y estados --- */
+  .ans{display:flex;align-items:center;gap:8px;position:relative;overflow:hidden}
+  .ans .bar{position:absolute;left:0;top:0;bottom:0;background:#ffffff10}
+  .ans .lbl{position:relative}
+  .ans .pc{position:relative;color:var(--muted);font-size:12px;margin-left:auto}
+  .answers.cols{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .prov{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;padding:3px 8px;border-radius:99px;background:#132447;color:#8fb8ff;margin-left:6px;vertical-align:middle}
+  .prov.def{background:#0f3324;color:#7ee2a8}
+  .loading{text-align:center;color:var(--muted);padding:40px 0}
+  .spin{width:28px;height:28px;border-radius:50%;border:3px solid var(--line);border-top-color:#7c5cff;animation:sp 1s linear infinite;margin:0 auto 10px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .demo-banner{background:#3a2708;color:#ffd277;border-radius:12px;padding:8px 12px;font-size:13px;margin-top:8px}
+  .yday{margin-top:12px;padding:12px 14px;border-radius:14px;background:#141733;border:1px solid var(--line);display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:14px;color:#c8cbf0}
+  .yday b{color:var(--text)}
+  .yday a{margin-left:auto}
+  @media (max-width:480px){.answers.cols{grid-template-columns:1fr}}
   .ad-slot{margin:22px 0 0}
   footer{color:#5e6390;font-size:12px;text-align:center;margin-top:34px;line-height:1.7}
   footer nav{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;margin-bottom:8px}
@@ -213,6 +229,8 @@
       <a class="btn gold" href="#jugar" id="heroBtn">▶ Jugar el reto de hoy</a>
       <div class="status" id="heroStatus"></div>
     </div>
+    <div id="ydayBox"></div>
+    <div id="demoBox"></div>
 
     <div class="menu-grid">
       <button class="tile" id="tilePractice"><div class="ico">🎲</div><b>Práctica libre</b><span>Partidas aleatorias ilimitadas. No cuentan para tu racha.</span></button>
@@ -249,15 +267,27 @@
     <h1 class="page">Cómo se juega</h1>
     <div class="prose">
       <h2>El objetivo</h2>
-      <p>Cada pregunta tiene una lista cerrada de respuestas correctas. Por ejemplo, si te piden un tipo de madera de Minecraft, hay doce posibles. Todas valen, pero no todas puntúan igual: las que casi todo el mundo diría dan pocos puntos y las que casi nadie recuerda dan muchos.</p>
+      <p>Cada pregunta tiene una lista cerrada de respuestas correctas. Por ejemplo, si te piden un tipo de madera de Minecraft, hay doce posibles. Todas valen, pero no todas puntúan igual: <b>lo que decide la rareza es lo que responden los demás jugadores</b>.</p>
+      <h2>Los puntos</h2>
+      <p>Tus puntos dependen del <b>% de jugadores que dijeron lo mismo que tú</b>: cuanto más bajo, más puntos, de 0 a 100. La escala premia mucho lo raro:</p>
+      <ul>
+        <li>Lo dice el 45% → <b>14 puntos</b></li>
+        <li>Lo dice el 14% → <b>34 puntos</b></li>
+        <li>Lo dice el 4% → <b>55 puntos</b></li>
+        <li>Lo dice el 1% → <b>79 puntos</b></li>
+        <li>Lo dice el 0,3% o menos → <b>100 puntos</b></li>
+      </ul>
+      <p>La puntuación máxima de un día es 500.</p>
       <h2>Los niveles de rareza</h2>
       <div class="tier-list">
-        <div class="b-c">Común · 10 pts</div>
-        <div class="b-r">Raro · 25 pts</div>
-        <div class="b-e">Épico · 50 pts</div>
-        <div class="b-l">Legendario · 100 pts</div>
+        <div class="b-c">Común · 15% o más</div>
+        <div class="b-r">Raro · del 4% al 15%</div>
+        <div class="b-e">Épico · del 1% al 4%</div>
+        <div class="b-l">Legendario · menos del 1%</div>
       </div>
-      <p>La puntuación máxima de un día es 500 puntos: cinco respuestas legendarias.</p>
+      <h2>Puntos provisionales y definitivos</h2>
+      <p>Mientras dura el día, la gente sigue jugando, así que tus puntos son <b>provisionales</b>: se calculan con lo que han respondido los jugadores hasta ese momento. Al día siguiente, con todos los votos del día, tus puntos pasan a ser <b>definitivos</b>. Puedes verlos en el menú.</p>
+      <p>Cuando todavía han jugado pocas personas, partimos de una estimación propia de lo rara que es cada respuesta, y conforme juega más gente pesan cada vez más los datos reales. Tu propio voto no cuenta para calcular tu rareza: se mide con lo que dijeron los demás.</p>
       <h2>Contrarreloj</h2>
       <ul>
         <li>Tienes <b>30 segundos</b> para cada pregunta.</li>
@@ -281,17 +311,19 @@
     <p class="lead">LEGENDARIO es un juego diario gratuito para gente que juega a videojuegos. La idea es sencilla: en lugar de premiar lo que sabe todo el mundo, premia lo que casi nadie recuerda.</p>
     <div class="faq">
       <details><summary>¿Qué es LEGENDARIO?</summary><p>Es un minijuego web que se renueva cada día. Te hacemos 5 preguntas sobre videojuegos populares (Minecraft, Pokémon, GTA V, Rocket League, Among Us…) y tienes que dar una respuesta válida a cada una. Cuanto menos conocida sea tu respuesta, más puntos ganas.</p></details>
-      <details><summary>¿Es gratis? ¿Hace falta registrarse?</summary><p>Es completamente gratis y no necesitas cuenta. Tu progreso, tu racha y tus estadísticas se guardan solo en tu navegador.</p></details>
-      <details><summary>¿Cómo decidís qué respuesta es rara?</summary><p>Cada respuesta tiene asignado un nivel (Común, Raro, Épico o Legendario) según lo conocida que es dentro de la comunidad del juego: lo que aparece en el juego, lo que más se usa y lo que más se comenta. Iremos ajustando los niveles con el tiempo para que sean lo más justos posible.</p></details>
+      <details><summary>¿Es gratis? ¿Hace falta registrarse?</summary><p>Es completamente gratis y no necesitas cuenta. Tu racha y tus estadísticas se guardan en tu navegador.</p></details>
+      <details><summary>¿Cómo decidís qué respuesta es rara?</summary><p>La decidís vosotros. La rareza de una respuesta es el % de jugadores que la han dado: cuanta menos gente la dice, más rara es y más puntos da (de 0 a 100: con un 45% te llevas 14 puntos; con un 1%, 79; con un 0,3% o menos, 100). Al principio, cuando hay pocos datos, partimos de una estimación propia, que va perdiendo peso a medida que juega más gente. Si una pregunta repite otro día, se suman los datos de todas las veces que ha salido.</p></details>
+      <details><summary>¿Por qué mis puntos son provisionales?</summary><p>Porque mientras dura el día sigue jugando gente y los porcentajes van cambiando. Al día siguiente tus puntos se recalculan con todos los votos del día y pasan a ser definitivos. Los verás en el menú, en «Ayer».</p></details>
       <details><summary>¿A qué hora cambia el reto?</summary><p>Cada día a las 00:00, hora peninsular española. En la pantalla de resultados verás una cuenta atrás hasta el siguiente.</p></details>
       <details><summary>¿Las preguntas son iguales para todos?</summary><p>Sí. El reto diario es el mismo para todos los jugadores, por eso tiene sentido comparar resultados. En el modo práctica, en cambio, las preguntas son aleatorias.</p></details>
-      <details><summary>¿Cómo se eligen los juegos de cada día?</summary><p>Los juegos van rotando: cada día salen los que menos veces han aparecido hasta ahora, y si hay empate, los que llevan más tiempo sin salir. Así todos los juegos aparecen con la misma frecuencia y es raro que uno se repita muchos días seguidos. Dentro de cada juego, las preguntas también rotan para que no se repitan hasta haber pasado por todas.</p></details>
-      <details><summary>¿Cuánto tiempo tengo para responder?</summary><p>30 segundos por pregunta. Puedes probar tantas respuestas como quieras en ese tiempo; la primera válida es la que cuenta. El temporizador sigue aunque recargues la página.</p></details>
+      <details><summary>¿Cómo se eligen los juegos de cada día?</summary><p>Al azar. Cada día se sortean 5 juegos de la lista, y de cada uno sale la pregunta que menos veces ha aparecido, para que no se repita ninguna hasta haber pasado por todas. El sorteo se hace una sola vez en nuestro servidor, así que es el mismo para todo el mundo.</p></details>
+      <details><summary>¿Cuánto tiempo tengo para responder?</summary><p>30 segundos por pregunta. Puedes probar tantas respuestas como quieras en ese tiempo; la primera válida es la que cuenta. El tiempo lo controla el servidor, así que sigue corriendo aunque recargues la página.</p></details>
       <details><summary>¿Las sugerencias me dicen la respuesta?</summary><p>No. Las sugerencias que aparecen al escribir salen de todos los nombres del juego (personajes, objetos, lugares…), no solo de los que valen para esa pregunta. Sirven para escribir más rápido, no para adivinar.</p></details>
       <details><summary>He escrito una respuesta correcta y no me la ha aceptado</summary><p>Puede pasar si la escribiste con un nombre distinto al que tenemos o si es contenido que se añadió al juego después de crear la pregunta. Revisamos las listas a menudo, y en las preguntas que dependen de la versión indicamos cuál es (por ejemplo, «versión 1.21»).</p></details>
       <details><summary>¿Puedo jugar más de una vez al día?</summary><p>El reto diario solo se puede jugar una vez, pero el modo práctica es ilimitado. Desde la sección Juegos también puedes practicar las preguntas de un juego concreto.</p></details>
       <details><summary>¿Cómo funciona la racha?</summary><p>Cada día que completas el reto diario tu racha sube en uno. Si un día no juegas, vuelve a empezar. Las partidas de práctica no cuentan.</p></details>
       <details><summary>¿Vais a añadir más juegos?</summary><p>Sí. La lista de juegos y preguntas irá creciendo. Si echas en falta alguno, pronto habilitaremos una forma de proponerlo.</p></details>
+      <details><summary>¿Puedo jugar el reto varias veces?</summary><p>No. Cada pregunta del reto diario solo se juega una vez. Desde una misma conexión pueden jugar varias personas (por ejemplo, en una casa o un instituto), pero con un límite, y si varias personas de la misma conexión dan la misma respuesta cuenta como un solo voto. Así nadie puede inflar los porcentajes.</p></details>
       <details><summary>¿Tenéis relación con los juegos que aparecen?</summary><p>No. LEGENDARIO es un proyecto independiente hecho por fans y no está afiliado, patrocinado ni respaldado por ninguna de las compañías propietarias de los juegos mencionados. Todas las marcas pertenecen a sus respectivos dueños y solo se citan para identificar los juegos.</p></details>
       <details><summary>¿Por qué hay anuncios?</summary><p>Los anuncios permiten que el juego siga siendo gratis para todo el mundo y que podamos seguir añadiendo preguntas. Intentamos que no molesten: nunca aparecen en mitad de una pregunta.</p></details>
     </div>
@@ -303,14 +335,20 @@
     <h1 class="page">Privacidad y cookies</h1>
     <div class="prose">
       <h2>Qué datos guardamos</h2>
-      <p>LEGENDARIO no tiene cuentas de usuario ni formularios, y no recoge tu nombre, tu correo ni ningún otro dato que te identifique. Tu progreso del día, tus estadísticas y tu racha se guardan en el almacenamiento local de tu navegador (localStorage). Esa información no sale de tu dispositivo y puedes borrarla cuando quieras desde los ajustes del navegador.</p>
+      <p>LEGENDARIO no tiene cuentas de usuario ni formularios, y no te pide tu nombre, tu correo ni ningún otro dato personal.</p>
+      <ul>
+        <li><b>En tu navegador</b> (localStorage) guardamos un identificador aleatorio que se crea la primera vez que juegas, tu racha y tus estadísticas. Puedes borrarlo cuando quieras desde los ajustes del navegador.</li>
+        <li><b>En nuestro servidor</b> guardamos tus respuestas del reto diario junto a ese identificador aleatorio, el día y el tiempo que tardaste. Lo usamos solo para calcular la rareza de cada respuesta y tus puntos. Ese identificador no está ligado a tu nombre ni a ninguna cuenta.</li>
+        <li><b>Para evitar trampas y abusos</b> (votos falsos, bots), junto a cada respuesta guardamos una <b>huella de red</b>: un código cifrado que se calcula a partir de tu dirección IP y de una clave que cambia cada día. <b>Nunca guardamos tu IP</b>, y la clave de cada día se borra pasadas 48 horas, de forma que después la huella ya no se puede relacionar con ninguna IP. Durante el día la usamos para limitar cuántas personas pueden jugar la misma pregunta desde una misma conexión, frenar a quien hace demasiadas peticiones por minuto y que una misma conexión no pueda votar varias veces lo mismo.</li>
+        <li>El servidor está alojado en <b>Supabase</b>, que como cualquier proveedor puede registrar datos técnicos de la conexión (por ejemplo, la dirección IP) por motivos de seguridad.</li>
+      </ul>
       <h2>Publicidad</h2>
       <p>Esta web puede mostrar anuncios de Google AdSense. Google y sus socios pueden usar cookies u otros identificadores para mostrar anuncios, limitar cuántas veces ves el mismo anuncio, medir su rendimiento y prevenir el fraude. Si estás en el Espacio Económico Europeo, el Reino Unido o Suiza, te pediremos tu consentimiento antes de usar cookies publicitarias, y podrás cambiar tu decisión en cualquier momento.</p>
       <p>Puedes leer cómo usa Google los datos en <a href="https://policies.google.com/technologies/partner-sites?hl=es" rel="noopener">esta página de Google</a> y gestionar los anuncios personalizados en <a href="https://adssettings.google.com" rel="noopener">la configuración de anuncios de Google</a>.</p>
       <h2>Servicios externos</h2>
-      <p>Las tipografías de la web se cargan desde Google Fonts, por lo que tu navegador se conecta a los servidores de Google para descargarlas.</p>
+      <p>Las tipografías de la web se cargan desde Google Fonts, por lo que tu navegador se conecta a los servidores de Google para descargarlas. Las partidas se guardan en Supabase (supabase.com).</p>
       <h2>Tus derechos</h2>
-      <p>Como la web no recoge datos personales tuyos, no guardamos nada que podamos consultar, corregir o borrar por ti: toda la información de tu partida está en tu propio navegador y puedes eliminarla cuando quieras borrando los datos del sitio.</p>
+      <p>Tus respuestas solo están ligadas a un identificador aleatorio de tu navegador, no a tu identidad. Si borras los datos del sitio en tu navegador, se genera uno nuevo y las respuestas anteriores dejan de estar asociadas a ti.</p>
     </div>
   </section>
 
@@ -321,6 +359,7 @@
     <h1 class="page">Aviso legal</h1>
     <div class="prose">
       <h2>Titular de la web</h2>
+      <!-- ⚠️ Cuando pongas anuncios, sustituye este párrafo por: Titular, NIF, Domicilio y Correo de contacto (art. 10 LSSI) -->
       <p>LEGENDARIO es un proyecto personal en fase de pruebas, sin publicidad ni ningún tipo de actividad económica. Los datos del titular se publicarán en esta página cuando la web incluya publicidad.</p>
       <h2>Condiciones de uso</h2>
       <p>El acceso a LEGENDARIO es gratuito y no requiere registro. Al usar la web te comprometes a hacerlo de forma lícita y a no intentar alterar su funcionamiento.</p>
@@ -346,10 +385,10 @@
 <div class="modal-bg" id="helpModal">
   <div class="modal">
     <h2>¡Bienvenido a LEGENDARIO!</h2>
-    <p>Cada día, <b>5 preguntas</b> de videojuegos. Cualquier respuesta válida suma, pero <b>cuanto más rara, más puntos</b>:</p>
+    <p>Cada día, <b>5 preguntas</b> de videojuegos. Cualquier respuesta válida suma, pero <b>cuanto menos gente diga lo mismo que tú, más puntos</b> (hasta 100 por pregunta).</p>
     <div class="tier-list">
-      <div class="b-c">Común · 10</div><div class="b-r">Raro · 25</div>
-      <div class="b-e">Épico · 50</div><div class="b-l">Legendario · 100</div>
+      <div class="b-c">Común · ≥15%</div><div class="b-r">Raro · 4-15%</div>
+      <div class="b-e">Épico · 1-4%</div><div class="b-l">Legendario · &lt;1%</div>
     </div>
     <ul>
       <li><b>30 segundos</b> por pregunta. Prueba todas las respuestas que quieras.</li>
@@ -370,894 +409,17 @@
 
 <script>
 /* =========================================================
-   BANCO DE JUEGOS Y PREGUNTAS
-   No lo edites a mano: usa editor.html y pega aquí el bloque
-   que te genera (todo lo que hay entre BANCO-INICIO y BANCO-FIN).
+   CONFIGURACIÓN DEL SERVIDOR (Supabase)
+   Supabase → Project Settings → API. Copia aquí:
+   · la URL del proyecto  (https://xxxx.supabase.co)
+   · la clave PÚBLICA     ("anon" o "publishable")
+   ⚠️ NUNCA pongas aquí la clave "service_role" / "secret".
+   Si lo dejas vacío, la web funciona en MODO DEMO (sin servidor).
    ========================================================= */
-/* ===BANCO-INICIO=== */
-const BANCO = {
- "version": 1,
- "juegos": [
-  {
-   "id": "minecraft",
-   "nombre": "Minecraft",
-   "icono": "⛏️",
-   "activo": true,
-   "desde": "2026-11-18",
-   "info": {
-    "genero": "Sandbox · supervivencia · construcción",
-    "plataformas": "PC, consolas y móvil",
-    "precio": "De pago",
-    "pegi": "7",
-    "descripcion": "Un mundo infinito hecho de bloques donde puedes construir lo que imagines, explorar cuevas y sobrevivir a noches llenas de monstruos. Es uno de los juegos más vendidos de la historia.",
-    "porque": [
-     "No hay una forma correcta de jugar: construye, explora o lucha",
-     "Ideal para jugar con amigos en el mismo mundo",
-     "Funciona en casi cualquier dispositivo"
-    ],
-    "empezar": "Crea un mundo en modo Supervivencia con dificultad Pacífica o Fácil para aprender sin agobios. Primer objetivo: talar madera, hacer una mesa de crafteo y construir un refugio antes de que anochezca."
-   },
-   "extra": [
-    "Creeper",
-    "Zombi|zombie",
-    "Esqueleto|skeleton",
-    "Enderman",
-    "Aldeano|villager",
-    "Gólem de hierro|iron golem",
-    "Bruja|witch",
-    "Comerciante errante|wandering trader",
-    "Wither",
-    "Dragón del End|ender dragon",
-    "Warden",
-    "Piedra|stone",
-    "Obsidiana|obsidian",
-    "Amatista|amethyst",
-    "Glowstone|piedra luminosa",
-    "Platino|platinum",
-    "Plata|silver",
-    "Rubí|ruby",
-    "Zafiro|sapphire",
-    "Estaño|tin",
-    "Pino|pine",
-    "Palmera|palm",
-    "Sauce|willow",
-    "Caoba|mahogany",
-    "Ébano|ebony",
-    "Minero|miner",
-    "Panadero|baker",
-    "Leñador|lumberjack",
-    "Guardia|guard",
-    "Explorador|explorer"
-   ],
-   "preguntas": [
-    {
-     "id": "minecraft-1",
-     "texto": "Nombra un mineral que aparezca como mena en Minecraft",
-     "activo": true,
-     "desde": "2026-11-18",
-     "l": [
-      "Oro del Nether|nether gold|oro nether|nether gold ore"
-     ],
-     "e": [
-      "Cuarzo del Nether|cuarzo|nether quartz|quartz",
-      "Escombros ancestrales|ancient debris|netherita|netherite|escombros antiguos"
-     ],
-     "r": [
-      "Redstone|piedra roja|polvo de redstone",
-      "Esmeralda|emerald",
-      "Lapislázuli|lapis|lapis lazuli",
-      "Cobre|copper"
-     ],
-     "c": [
-      "Diamante|diamond|diamantes",
-      "Hierro|iron",
-      "Carbón|coal",
-      "Oro|gold"
-     ]
-    },
-    {
-     "id": "minecraft-2",
-     "texto": "Nombra un tipo de madera de Minecraft (versión 1.21)",
-     "activo": true,
-     "desde": "2026-11-18",
-     "l": [
-      "Roble pálido|pale oak"
-     ],
-     "e": [
-      "Mangle|mangrove",
-      "Bambú|bamboo",
-      "Carmesí|crimson",
-      "Distorsionada|warped|distorsionado"
-     ],
-     "r": [
-      "Jungla|jungle",
-      "Acacia",
-      "Roble oscuro|dark oak",
-      "Cerezo|cherry"
-     ],
-     "c": [
-      "Roble|oak",
-      "Abeto|spruce",
-      "Abedul|birch"
-     ]
-    },
-    {
-     "id": "minecraft-3",
-     "texto": "Nombra una profesión de aldeano de Minecraft",
-     "activo": true,
-     "desde": "2026-11-18",
-     "l": [
-      "Peletero|leatherworker|curtidor",
-      "Albañil|mason|cantero"
-     ],
-     "e": [
-      "Herrero de herramientas|toolsmith",
-      "Flechero|fletcher",
-      "Cartógrafo|cartographer"
-     ],
-     "r": [
-      "Pescador|fisherman",
-      "Carnicero|butcher",
-      "Clérigo|cleric|sacerdote",
-      "Armero|armorer",
-      "Pastor|shepherd"
-     ],
-     "c": [
-      "Granjero|farmer|agricultor",
-      "Bibliotecario|librarian",
-      "Herrero de armas|weaponsmith|herrero"
-     ]
-    }
-   ]
-  },
-  {
-   "id": "pokemon",
-   "nombre": "Pokémon",
-   "icono": "⚡",
-   "activo": true,
-   "desde": "2026-11-18",
-   "info": {
-    "genero": "RPG · aventura · colección",
-    "plataformas": "Nintendo Switch y Switch 2 (Pokémon GO en móvil)",
-    "precio": "De pago (Pokémon GO es gratis)",
-    "pegi": "7",
-    "descripcion": "Capturas criaturas, formas tu equipo y combates por turnos para convertirte en el mejor entrenador de la región. Es la franquicia de entretenimiento que más dinero ha generado en el mundo.",
-    "porque": [
-     "Los combates por turnos son fáciles de aprender y muy profundos",
-     "Coleccionar y entrenar a tu equipo engancha muchísimo",
-     "Cada generación es una región nueva: puedes empezar por cualquiera"
-    ],
-    "empezar": "Pokémon Escarlata o Púrpura (Switch) son una buena puerta de entrada con mundo abierto. Si quieres probar sin gastar dinero, Pokémon GO es gratis en el móvil."
-   },
-   "extra": [
-    "Pikachu",
-    "Raichu",
-    "Eevee",
-    "Charmeleon",
-    "Charizard",
-    "Ivysaur",
-    "Venusaur",
-    "Wartortle",
-    "Blastoise",
-    "Gengar",
-    "Snorlax",
-    "Dragonite",
-    "Gyarados",
-    "Magikarp",
-    "Psyduck",
-    "Jigglypuff",
-    "Meowth",
-    "Onix",
-    "Geodude",
-    "Golem",
-    "Lapras",
-    "Ditto",
-    "Abra",
-    "Alakazam",
-    "Poliwag",
-    "Poliwhirl",
-    "Politoed",
-    "Cubone",
-    "Scyther",
-    "Kangaskhan",
-    "Tauros",
-    "Electabuzz",
-    "Magmar",
-    "Hitmontop",
-    "Tyrogue",
-    "Heracross",
-    "Lucario",
-    "Riolu",
-    "Blaziken",
-    "Combusken",
-    "Infernape",
-    "Monferno",
-    "Gallade",
-    "Conkeldurr",
-    "Hawlucha",
-    "Rayquaza",
-    "Groudon",
-    "Kyogre",
-    "Arceus",
-    "Dialga",
-    "Palkia",
-    "Giratina",
-    "Zekrom",
-    "Reshiram",
-    "Xerneas",
-    "Yveltal",
-    "Solgaleo",
-    "Lunala",
-    "Zacian",
-    "Zamazenta",
-    "Koraidon",
-    "Miraidon",
-    "Ash",
-    "Gary",
-    "Profesor Oak|oak",
-    "Jessie",
-    "James",
-    "Janine",
-    "Whitney",
-    "Jasmine",
-    "Clair",
-    "Lance",
-    "Lorelei",
-    "Bruno",
-    "Agatha",
-    "Luz|light",
-    "Sonido|sound",
-    "Metal",
-    "Cósmico|cosmic",
-    "Viento|wind",
-    "Magia|magic",
-    "Cristal|crystal",
-    "Sombra|shadow"
-   ],
-   "preguntas": [
-    {
-     "id": "pokemon-1",
-     "texto": "Nombra un Pokémon inicial (el primero de su línea, de cualquier generación)",
-     "activo": true,
-     "desde": "2026-11-18",
-     "l": [
-      "Chespin",
-      "Quaxly"
-     ],
-     "e": [
-      "Snivy",
-      "Tepig",
-      "Oshawott",
-      "Fennekin",
-      "Popplio",
-      "Grookey",
-      "Scorbunny",
-      "Sobble",
-      "Sprigatito",
-      "Fuecoco"
-     ],
-     "r": [
-      "Chikorita",
-      "Cyndaquil",
-      "Totodile",
-      "Treecko",
-      "Torchic",
-      "Mudkip",
-      "Turtwig",
-      "Chimchar",
-      "Piplup",
-      "Froakie",
-      "Rowlet",
-      "Litten"
-     ],
-     "c": [
-      "Charmander",
-      "Squirtle",
-      "Bulbasaur"
-     ]
-    },
-    {
-     "id": "pokemon-2",
-     "texto": "Nombra un Pokémon de 1ª generación (nº 1-151) que tenga tipo Lucha",
-     "activo": true,
-     "desde": "2026-11-18",
-     "l": [
-      "Poliwrath"
-     ],
-     "e": [
-      "Primeape",
-      "Machoke"
-     ],
-     "r": [
-      "Mankey",
-      "Hitmonlee",
-      "Hitmonchan"
-     ],
-     "c": [
-      "Machamp",
-      "Machop"
-     ]
-    },
-    {
-     "id": "pokemon-3",
-     "texto": "Nombra un Pokémon legendario o singular de 1ª o 2ª generación",
-     "activo": true,
-     "desde": "2026-11-18",
-     "l": [
-      "Raikou",
-      "Entei"
-     ],
-     "e": [
-      "Suicune",
-      "Celebi"
-     ],
-     "r": [
-      "Articuno",
-      "Zapdos",
-      "Moltres",
-      "Lugia",
-      "Ho-Oh|hooh"
-     ],
-     "c": [
-      "Mewtwo",
-      "Mew"
-     ]
-    },
-    {
-     "id": "pokemon-4",
-     "texto": "Nombra un tipo de Pokémon",
-     "activo": true,
-     "desde": "2026-11-18",
-     "l": [
-      "Acero|steel"
-     ],
-     "e": [
-      "Bicho|bug|insecto",
-      "Siniestro|dark|oscuro|siniestra",
-      "Hada|fairy"
-     ],
-     "r": [
-      "Psíquico|psychic",
-      "Volador|flying|volar",
-      "Lucha|fighting",
-      "Veneno|poison",
-      "Tierra|ground",
-      "Roca|rock",
-      "Hielo|ice",
-      "Dragón|dragon",
-      "Fantasma|ghost"
-     ],
-     "c": [
-      "Fuego|fire",
-      "Agua|water",
-      "Planta|grass|hierba",
-      "Eléctrico|electric|electrico",
-      "Normal"
-     ]
-    },
-    {
-     "id": "pokemon-5",
-     "texto": "Nombra un líder de gimnasio de Kanto en Pokémon Rojo y Azul",
-     "activo": true,
-     "desde": "2026-11-18",
-     "l": [
-      "Blaine"
-     ],
-     "e": [
-      "Lt. Surge|teniente surge|surge|lt surge",
-      "Koga"
-     ],
-     "r": [
-      "Giovanni",
-      "Erika",
-      "Sabrina"
-     ],
-     "c": [
-      "Brock",
-      "Misty"
-     ]
-    }
-   ]
-  },
-  {
-   "id": "gtav",
-   "nombre": "GTA V",
-   "icono": "🚗",
-   "activo": true,
-   "desde": "2026-11-18",
-   "info": {
-    "genero": "Acción · mundo abierto",
-    "plataformas": "PC, PlayStation 4/5 y Xbox One/Series",
-    "precio": "De pago",
-    "pegi": "18",
-    "descripcion": "Tres criminales muy distintos (Michael, Franklin y Trevor) planean golpes en Los Santos, una parodia gigante de Los Ángeles. Incluye GTA Online, uno de los multijugadores más jugados.",
-    "porque": [
-     "Una historia con tres protagonistas que puedes alternar cuando quieras",
-     "Un mapa enorme con muchísimas cosas que hacer",
-     "GTA Online para jugar con amigos durante años"
-    ],
-    "empezar": "Es un juego para mayores de 18 años. Si cumples la edad, empieza por el modo historia: los golpes son lo mejor del juego."
-   },
-   "extra": [
-    "Michael",
-    "Franklin",
-    "Trevor",
-    "Lamar",
-    "Lester",
-    "Chop",
-    "Flash FM",
-    "V-Rock",
-    "Wave 103",
-    "Emotion 98.3",
-    "K-DST",
-    "Radio X",
-    "Playback FM",
-    "Bounce FM",
-    "Liberty Rock Radio",
-    "Vladivostok FM",
-    "The Fleeca Job",
-    "The Prison Break",
-    "The Humane Labs Raid",
-    "Series A Funding",
-    "The Pacific Standard Job",
-    "The Diamond Casino Heist|casino",
-    "The Cayo Perico Heist|cayo perico"
-   ],
-   "preguntas": [
-    {
-     "id": "gtav-1",
-     "texto": "Nombra una emisora de radio de GTA V",
-     "activo": true,
-     "desde": "2026-11-18",
-     "l": [
-      "Blue Ark",
-      "Blaine County Radio",
-      "Self Radio",
-      "iFruit Radio|ifruit",
-      "Kult FM|kult",
-      "Still Slipping Los Santos|still slipping",
-      "The Music Locker|music locker",
-      "MOTOMAMI Los Santos|motomami"
-     ],
-     "e": [
-      "Space 103.2|space",
-      "The Lab",
-      "Vinewood Boulevard Radio|vinewood boulevard",
-      "Soulwax FM|soulwax",
-      "Worldwide FM|worldwide",
-      "The Lowdown 91.1|lowdown",
-      "Los Santos Underground Radio|lsur|underground radio",
-      "West Coast Talk Radio|wctr"
-     ],
-     "r": [
-      "West Coast Classics",
-      "Channel X",
-      "Rebel Radio",
-      "Radio Mirror Park|mirror park",
-      "FlyLo FM|flylo",
-      "East Los FM|east los",
-      "Blonded Los Santos 97.8 FM|blonded|blonded los santos"
-     ],
-     "c": [
-      "Non-Stop-Pop FM|non stop pop|nonstop pop",
-      "Radio Los Santos",
-      "Los Santos Rock Radio|rock radio"
-     ]
-    },
-    {
-     "id": "gtav-2",
-     "texto": "Nombra uno de los grandes golpes del modo historia de GTA V",
-     "activo": true,
-     "desde": "2026-11-18",
-     "l": [
-      "Blitz Play|blitz"
-     ],
-     "e": [
-      "The Bureau Raid (asalto al FIB)|bureau raid|fib|asalto al fib"
-     ],
-     "r": [
-      "The Paleto Score (banco de Paleto)|paleto score|paleto|banco de paleto|golpe de paleto",
-      "The Merryweather Heist|merryweather|merryweather heist"
-     ],
-     "c": [
-      "The Big Score (el gran golpe)|big score|gran golpe|el gran golpe",
-      "The Jewel Store Job (la joyería)|jewel store job|jewel store|joyeria|golpe a la joyeria|vangelico"
-     ]
-    }
-   ]
-  },
-  {
-   "id": "rocketleague",
-   "nombre": "Rocket League",
-   "icono": "⚽",
-   "activo": true,
-   "desde": "2026-11-18",
-   "info": {
-    "genero": "Deportes · coches · competitivo",
-    "plataformas": "PC, PlayStation, Xbox y Switch",
-    "precio": "Gratis",
-    "pegi": "3",
-    "descripcion": "Fútbol con coches propulsados por turbo. Las partidas duran 5 minutos y la idea se entiende en segundos, aunque dominarlo puede llevarte años.",
-    "porque": [
-     "Es gratis",
-     "Partidas cortas, perfectas para echar un rato",
-     "Modos divertidos como Hoops (baloncesto) o Snow Day (hockey)"
-    ],
-    "empezar": "Haz el tutorial y juega partidas casuales de 2 contra 2. No te obsesiones con volar: primero aprende a golpear bien la pelota."
-   },
-   "extra": [
-    "Fennec",
-    "Batmobile|batmovil",
-    "Endo",
-    "Takumi",
-    "Venom",
-    "Mantis",
-    "Paladin",
-    "Road Hog",
-    "Twin Mill",
-    "Duelo|1v1|duel",
-    "Dobles|2v2|doubles",
-    "Estándar|3v3|standard",
-    "Caos|4v4|chaos",
-    "Torneos|tournament",
-    "Juego libre|freeplay",
-    "Entrenamiento|training",
-    "Mutadores|mutators"
-   ],
-   "preguntas": [
-    {
-     "id": "rocketleague-1",
-     "texto": "Nombra uno de los tipos de hitbox de los coches de Rocket League",
-     "activo": true,
-     "desde": "2026-11-18",
-     "l": [
-      "Merc"
-     ],
-     "e": [
-      "Hybrid|hibrido"
-     ],
-     "r": [
-      "Breakout",
-      "Plank"
-     ],
-     "c": [
-      "Octane",
-      "Dominus"
-     ]
-    },
-    {
-     "id": "rocketleague-2",
-     "texto": "Nombra un modo de juego de Rocket League que no sea el fútbol normal",
-     "activo": true,
-     "desde": "2026-11-18",
-     "l": [
-      "Ghost Hunt",
-      "Tactical Rumble",
-      "Dropshot Rumble"
-     ],
-     "e": [
-      "Beach Ball",
-      "Boomer Ball",
-      "Spooky Cube",
-      "Speed Demon",
-      "Super Cube"
-     ],
-     "r": [
-      "Heatseeker",
-      "Knockout|knockout bash",
-      "Spike Rush",
-      "Gridiron"
-     ],
-     "c": [
-      "Hoops|baloncesto|basket",
-      "Rumble",
-      "Dropshot",
-      "Snow Day|hockey|dia de nieve"
-     ]
-    }
-   ]
-  },
-  {
-   "id": "amongus",
-   "nombre": "Among Us",
-   "icono": "🔪",
-   "activo": true,
-   "desde": "2026-11-18",
-   "info": {
-    "genero": "Deducción social · multijugador",
-    "plataformas": "Móvil, PC y consolas",
-    "precio": "Gratis en móvil · de pago en PC y consolas",
-    "pegi": "7",
-    "descripcion": "Un grupo de tripulantes hace tareas en una nave… pero entre ellos hay impostores. Toca descubrirlos hablando, sospechando y votando.",
-    "porque": [
-     "Es aún más divertido jugando con amigos en llamada",
-     "Partidas rápidas de unos 10-15 minutos",
-     "No necesitas reflejos: gana quien mejor miente o deduce"
-    ],
-    "empezar": "Juega primero como tripulante para aprenderte el mapa de The Skeld y sus tareas. Cuando lo controles, ser impostor es mucho más divertido."
-   },
-   "extra": [
-    "Submerged",
-    "Hide and Seek|escondite",
-    "Dorado|gold",
-    "Plateado|silver",
-    "Fucsia|fuchsia",
-    "Azul marino|navy",
-    "Oliva|olive",
-    "Melocotón|peach",
-    "Arcoíris|rainbow"
-   ],
-   "preguntas": [
-    {
-     "id": "amongus-1",
-     "texto": "Nombra un mapa de Among Us",
-     "activo": true,
-     "desde": "2026-11-18",
-     "l": [
-      "Dleks|ehT dlekS"
-     ],
-     "e": [
-      "The Fungle|fungle"
-     ],
-     "r": [
-      "Mira HQ|mira",
-      "The Airship|airship|aeronave"
-     ],
-     "c": [
-      "The Skeld|skeld",
-      "Polus"
-     ]
-    },
-    {
-     "id": "amongus-2",
-     "texto": "Nombra un color de tripulante de Among Us",
-     "activo": true,
-     "desde": "2026-11-18",
-     "l": [
-      "Plátano|banana",
-      "Rosa claro|rose|rosado|rosa palo",
-      "Beige|tan|canela|bronceado"
-     ],
-     "e": [
-      "Gris|gray|grey",
-      "Coral",
-      "Granate|maroon"
-     ],
-     "r": [
-      "Rosa|pink",
-      "Naranja|orange",
-      "Morado|purple|lila|violeta",
-      "Cian|cyan|celeste",
-      "Marrón|brown",
-      "Lima|lime"
-     ],
-     "c": [
-      "Rojo|red",
-      "Azul|blue",
-      "Verde|green",
-      "Amarillo|yellow",
-      "Negro|black",
-      "Blanco|white"
-     ]
-    }
-   ]
-  },
-  {
-   "id": "mariokart",
-   "nombre": "Mario Kart 8 Deluxe",
-   "icono": "🏁",
-   "activo": true,
-   "desde": "2026-11-18",
-   "info": {
-    "genero": "Carreras · party",
-    "plataformas": "Nintendo Switch (también funciona en Switch 2)",
-    "precio": "De pago",
-    "pegi": "3",
-    "descripcion": "Carreras de karts con los personajes de Mario, objetos locos y circuitos llenos de atajos. Es el juego más vendido de Nintendo Switch.",
-    "porque": [
-     "Cualquiera puede jugar desde el primer minuto",
-     "Perfecto para jugar a pantalla partida con amigos o familia",
-     "Muchísimos circuitos y personajes"
-    ],
-    "empezar": "Si nunca has jugado, activa la dirección asistida y empieza por la Copa Champiñón en 100cc. Cuando ganes, quítala: irás más rápido."
-   },
-   "extra": [
-    "Champiñón gigante|mega mushroom",
-    "Bloque POW|pow",
-    "Nube de rayos|thunder cloud",
-    "Hoja tanuki|super leaf",
-    "Caja falsa|fake item box",
-    "Huevo de Yoshi|yoshi egg",
-    "Chomp cadenero|chain chomp",
-    "Dorada|golden dash",
-    "Gato|lucky cat",
-    "Nabo|turnip",
-    "Hélice|propeller",
-    "Roca|rock",
-    "Luna|moon",
-    "Fruta|fruit",
-    "Bumerán|boomerang cup",
-    "Cereza|cherry",
-    "Bellota|acorn",
-    "Pincho|spiny"
-   ],
-   "preguntas": [
-    {
-     "id": "mariokart-1",
-     "texto": "Nombra un objeto de Mario Kart 8 Deluxe",
-     "activo": true,
-     "desde": "2026-11-18",
-     "l": [
-      "Flor bumerán|boomerang flower|boomerang|bumeran",
-      "Planta Piraña|piranha plant",
-      "Boo|fantasma",
-      "Pluma|feather|superpluma"
-     ],
-     "e": [
-      "Blooper|calamar",
-      "Flor de fuego|fire flower",
-      "Moneda|coin",
-      "Ocho loco|crazy eight|8 loco",
-      "Superbocina|super horn|bocina"
-     ],
-     "r": [
-      "Superestrella|estrella|super estrella|star",
-      "Bill Bala|bullet bill",
-      "Rayo|lightning",
-      "Bob-omb|bomba|bob omb",
-      "Champiñón dorado|golden mushroom|seta dorada"
-     ],
-     "c": [
-      "Plátano|banana|platanos",
-      "Caparazón rojo|red shell",
-      "Caparazón verde|green shell",
-      "Champiñón|mushroom|seta",
-      "Caparazón azul|blue shell|spiny shell|caparazon de pinchos|concha azul"
-     ]
-    },
-    {
-     "id": "mariokart-2",
-     "texto": "Nombra una copa de Mario Kart 8 Deluxe (sin contar el Pase de pistas extra)",
-     "activo": true,
-     "desde": "2026-11-18",
-     "l": [
-      "Campana|bell",
-      "Cruce|crossing|animal crossing"
-     ],
-     "e": [
-      "Trifuerza|triforce",
-      "Huevo|egg"
-     ],
-     "r": [
-      "Caparazón|shell",
-      "Plátano|banana",
-      "Rayo|lightning",
-      "Hoja|leaf"
-     ],
-     "c": [
-      "Champiñón|mushroom",
-      "Estrella|star",
-      "Especial|special",
-      "Flor|flower"
-     ]
-    }
-   ]
-  },
-  {
-   "id": "eafc",
-   "nombre": "FIFA / EA Sports FC",
-   "icono": "🏆",
-   "activo": true,
-   "desde": "2026-11-18",
-   "info": {
-    "genero": "Deportes · fútbol",
-    "plataformas": "PC, PlayStation, Xbox y Switch",
-    "precio": "De pago (sale una entrega nueva cada año)",
-    "pegi": "3",
-    "descripcion": "El simulador de fútbol de EA, que se llamó FIFA hasta 2023. Tiene equipos y jugadores reales de ligas de todo el mundo.",
-    "porque": [
-     "Juega con tu equipo favorito y sus jugadores reales",
-     "Ultimate Team: crea tu plantilla soñada",
-     "Modo Carrera para llevar a un club a lo más alto"
-    ],
-    "empezar": "Empieza con partidos rápidos y el Modo Carrera, que no dependen de gastar dinero. Ultimate Team engancha mucho, pero cuidado con los sobres de pago."
-   },
-   "extra": [
-    "Battle Royale",
-    "Modo zombis|zombies",
-    "Fantasy",
-    "Mundo abierto|open world",
-    "Modo arcade|arcade"
-   ],
-   "preguntas": [
-    {
-     "id": "eafc-1",
-     "texto": "Nombra un modo de juego de FIFA / EA Sports FC",
-     "activo": true,
-     "desde": "2026-11-18",
-     "l": [
-      "Juegos de habilidad|skill games|minijuegos",
-      "El Camino|the journey|journey|alex hunter|modo historia",
-      "Temporadas cooperativas|co-op seasons|coop seasons"
-     ],
-     "e": [
-      "Partido rápido|kick off|kickoff|amistoso",
-      "Torneo|torneos|tournament",
-      "Rush"
-     ],
-     "r": [
-      "Clubs Pro|pro clubs|clubes pro",
-      "Volta|volta football",
-      "Temporadas|seasons|divisiones"
-     ],
-     "c": [
-      "Ultimate Team|fut|ut",
-      "Modo Carrera|carrera|career mode|manager"
-     ]
-    }
-   ]
-  },
-  {
-   "id": "zelda",
-   "nombre": "Zelda: Breath of the Wild",
-   "icono": "🗡️",
-   "activo": true,
-   "desde": "2026-11-18",
-   "info": {
-    "genero": "Aventura · mundo abierto",
-    "plataformas": "Nintendo Switch y Switch 2 (también Wii U)",
-    "precio": "De pago",
-    "pegi": "12",
-    "descripcion": "Link despierta tras 100 años y debe derrotar al Ganon del Cataclismo en un Hyrule enorme y libre: puedes escalar casi cualquier cosa e ir a por el jefe final desde el principio si te atreves.",
-    "porque": [
-     "Libertad total: tú decides por dónde ir",
-     "Física y química para resolver los retos a tu manera",
-     "Considerado uno de los mejores juegos de la historia"
-    ],
-    "empezar": "Explora la Meseta de los Albores con calma y no te agobies si se rompen las armas: encontrarás muchas más. Si te gusta, su secuela es Tears of the Kingdom."
-   },
-   "extra": [
-    "Link",
-    "Zelda",
-    "Ganon|calamity ganon|ganon del cataclismo",
-    "Impa",
-    "Sidon",
-    "Riju",
-    "Teba",
-    "Yunobo",
-    "Rey Rhoam|rhoam",
-    "Hestu",
-    "Kass",
-    "Beedle"
-   ],
-   "preguntas": [
-    {
-     "id": "zelda-1",
-     "texto": "Nombra un Campeón o una Bestia Divina de Zelda: Breath of the Wild",
-     "activo": true,
-     "desde": "2026-11-18",
-     "l": [
-      "Vah Naboris|naboris"
-     ],
-     "e": [
-      "Vah Rudania|rudania"
-     ],
-     "r": [
-      "Vah Ruta|ruta",
-      "Vah Medoh|medoh"
-     ],
-     "c": [
-      "Mipha",
-      "Urbosa",
-      "Revali",
-      "Daruk"
-     ]
-    }
-   ]
-  }
- ]
+const CONFIG = {
+  SUPABASE_URL: '',
+  SUPABASE_KEY: ''
 };
-/* ===BANCO-FIN=== */
 
 /* ===== NÚCLEO COMPARTIDO (web y editor) ===== */
 const TIERS = {
@@ -1354,81 +516,174 @@ function buildSchedule(juegos, upTo){
 /* ===== FIN NÚCLEO ===== */
 
 
-/* ---------- utilidades de la web ---------- */
-const JUEGOS = BANCO.juegos;
+/* =========================================================
+   MODO DEMO — solo se usa si CONFIG está vacío.
+   Simula el servidor en el navegador con 5 preguntas DE PRUEBA
+   (no son las del banco real, así no se filtran sus respuestas).
+   ========================================================= */
+const DemoServer = (() => {
+  const JUEGOS = [{"id": "minecraft", "nombre": "Minecraft", "icono": "⛏️", "info": {"genero": "Sandbox · supervivencia · construcción", "plataformas": "PC, consolas y móvil", "precio": "De pago", "pegi": "7", "descripcion": "Un mundo infinito hecho de bloques donde puedes construir lo que imagines, explorar cuevas y sobrevivir a noches llenas de monstruos. Es uno de los juegos más vendidos de la historia.", "porque": ["No hay una forma correcta de jugar: construye, explora o lucha", "Ideal para jugar con amigos en el mismo mundo", "Funciona en casi cualquier dispositivo"], "empezar": "Crea un mundo en modo Supervivencia con dificultad Pacífica o Fácil para aprender sin agobios. Primer objetivo: talar madera, hacer una mesa de crafteo y construir un refugio antes de que anochezca."}, "extra": ["Creeper", "Zombi|zombie", "Esqueleto|skeleton", "Enderman", "Aldeano|villager", "Gólem de hierro|iron golem", "Bruja|witch", "Comerciante errante|wandering trader", "Wither", "Dragón del End|ender dragon", "Warden", "Piedra|stone", "Obsidiana|obsidian", "Amatista|amethyst", "Glowstone|piedra luminosa", "Platino|platinum", "Plata|silver", "Rubí|ruby", "Zafiro|sapphire", "Estaño|tin", "Pino|pine", "Palmera|palm", "Sauce|willow", "Caoba|mahogany", "Ébano|ebony", "Minero|miner", "Panadero|baker", "Leñador|lumberjack", "Guardia|guard", "Explorador|explorer"]}, {"id": "pokemon", "nombre": "Pokémon", "icono": "⚡", "info": {"genero": "RPG · aventura · colección", "plataformas": "Nintendo Switch y Switch 2 (Pokémon GO en móvil)", "precio": "De pago (Pokémon GO es gratis)", "pegi": "7", "descripcion": "Capturas criaturas, formas tu equipo y combates por turnos para convertirte en el mejor entrenador de la región. Es la franquicia de entretenimiento que más dinero ha generado en el mundo.", "porque": ["Los combates por turnos son fáciles de aprender y muy profundos", "Coleccionar y entrenar a tu equipo engancha muchísimo", "Cada generación es una región nueva: puedes empezar por cualquiera"], "empezar": "Pokémon Escarlata o Púrpura (Switch) son una buena puerta de entrada con mundo abierto. Si quieres probar sin gastar dinero, Pokémon GO es gratis en el móvil."}, "extra": ["Pikachu", "Raichu", "Eevee", "Charmeleon", "Charizard", "Ivysaur", "Venusaur", "Wartortle", "Blastoise", "Gengar", "Snorlax", "Dragonite", "Gyarados", "Magikarp", "Psyduck", "Jigglypuff", "Meowth", "Onix", "Geodude", "Golem", "Lapras", "Ditto", "Abra", "Alakazam", "Poliwag", "Poliwhirl", "Politoed", "Cubone", "Scyther", "Kangaskhan", "Tauros", "Electabuzz", "Magmar", "Hitmontop", "Tyrogue", "Heracross", "Lucario", "Riolu", "Blaziken", "Combusken", "Infernape", "Monferno", "Gallade", "Conkeldurr", "Hawlucha", "Rayquaza", "Groudon", "Kyogre", "Arceus", "Dialga", "Palkia", "Giratina", "Zekrom", "Reshiram", "Xerneas", "Yveltal", "Solgaleo", "Lunala", "Zacian", "Zamazenta", "Koraidon", "Miraidon", "Ash", "Gary", "Profesor Oak|oak", "Jessie", "James", "Janine", "Whitney", "Jasmine", "Clair", "Lance", "Lorelei", "Bruno", "Agatha", "Luz|light", "Sonido|sound", "Metal", "Cósmico|cosmic", "Viento|wind", "Magia|magic", "Cristal|crystal", "Sombra|shadow"]}, {"id": "amongus", "nombre": "Among Us", "icono": "🔪", "info": {"genero": "Deducción social · multijugador", "plataformas": "Móvil, PC y consolas", "precio": "Gratis en móvil · de pago en PC y consolas", "pegi": "7", "descripcion": "Un grupo de tripulantes hace tareas en una nave… pero entre ellos hay impostores. Toca descubrirlos hablando, sospechando y votando.", "porque": ["Es aún más divertido jugando con amigos en llamada", "Partidas rápidas de unos 10-15 minutos", "No necesitas reflejos: gana quien mejor miente o deduce"], "empezar": "Juega primero como tripulante para aprenderte el mapa de The Skeld y sus tareas. Cuando lo controles, ser impostor es mucho más divertido."}, "extra": ["Submerged", "Hide and Seek|escondite", "Dorado|gold", "Plateado|silver", "Fucsia|fuchsia", "Azul marino|navy", "Oliva|olive", "Melocotón|peach", "Arcoíris|rainbow"]}, {"id": "mariokart", "nombre": "Mario Kart 8 Deluxe", "icono": "🏁", "info": {"genero": "Carreras · party", "plataformas": "Nintendo Switch (también funciona en Switch 2)", "precio": "De pago", "pegi": "3", "descripcion": "Carreras de karts con los personajes de Mario, objetos locos y circuitos llenos de atajos. Es el juego más vendido de Nintendo Switch.", "porque": ["Cualquiera puede jugar desde el primer minuto", "Perfecto para jugar a pantalla partida con amigos o familia", "Muchísimos circuitos y personajes"], "empezar": "Si nunca has jugado, activa la dirección asistida y empieza por la Copa Champiñón en 100cc. Cuando ganes, quítala: irás más rápido."}, "extra": ["Champiñón gigante|mega mushroom", "Bloque POW|pow", "Nube de rayos|thunder cloud", "Hoja tanuki|super leaf", "Caja falsa|fake item box", "Huevo de Yoshi|yoshi egg", "Chomp cadenero|chain chomp", "Dorada|golden dash", "Gato|lucky cat", "Nabo|turnip", "Hélice|propeller", "Roca|rock", "Luna|moon", "Fruta|fruit", "Bumerán|boomerang cup", "Cereza|cherry", "Bellota|acorn", "Pincho|spiny"]}, {"id": "zelda", "nombre": "Zelda: Breath of the Wild", "icono": "🗡️", "info": {"genero": "Aventura · mundo abierto", "plataformas": "Nintendo Switch y Switch 2 (también Wii U)", "precio": "De pago", "pegi": "12", "descripcion": "Link despierta tras 100 años y debe derrotar al Ganon del Cataclismo en un Hyrule enorme y libre: puedes escalar casi cualquier cosa e ir a por el jefe final desde el principio si te atreves.", "porque": ["Libertad total: tú decides por dónde ir", "Física y química para resolver los retos a tu manera", "Considerado uno de los mejores juegos de la historia"], "empezar": "Explora la Meseta de los Albores con calma y no te agobies si se rompen las armas: encontrarás muchas más. Si te gusta, su secuela es Tears of the Kingdom."}, "extra": ["Link", "Zelda", "Ganon|calamity ganon|ganon del cataclismo", "Impa", "Sidon", "Riju", "Teba", "Yunobo", "Rey Rhoam|rhoam", "Hestu", "Kass", "Beedle"]}];
+  const PREGUNTAS = [
+    {pregunta_id:'demo-mc', juego_id:'minecraft', texto:'Nombra una dimensión o un jefe de Minecraft',
+     c:['Nether','End|el end','Superficie|overworld|mundo normal'], r:['Dragón del End|ender dragon|dragon','Wither'], e:['Warden'], l:['Guardián anciano|elder guardian']},
+    {pregunta_id:'demo-pk', juego_id:'pokemon', texto:'Nombra una evolución de Eevee',
+     c:['Vaporeon','Jolteon','Flareon','Umbreon'], r:['Espeon','Sylveon'], e:['Leafeon'], l:['Glaceon']},
+    {pregunta_id:'demo-au', juego_id:'amongus', texto:'Nombra un rol de Among Us',
+     c:['Tripulante|crewmate','Impostor'], r:['Científico|scientist','Ingeniero|engineer'], e:['Ángel de la guarda|guardian angel','Cambiaformas|shapeshifter'], l:['Rastreador|tracker','Ruidoso|noisemaker','Fantasma|phantom']},
+    {pregunta_id:'demo-mk', juego_id:'mariokart', texto:'Nombra un personaje bebé de Mario Kart 8 Deluxe',
+     c:['Bebé Mario|baby mario','Bebé Luigi|baby luigi'], r:['Bebé Peach|baby peach'], e:['Bebé Daisy|baby daisy'], l:['Bebé Rosalina|baby rosalina']},
+    {pregunta_id:'demo-zd', juego_id:'zelda', texto:'Nombra una raza de Hyrule en Zelda: Breath of the Wild',
+     c:['Hyliano|hylianos|hylian','Goron|gorons','Zora|zoras'], r:['Gerudo|gerudos','Rito|ritos'], e:['Sheikah'], l:['Kolog|koloks|korok']},
+  ];
+  const PREVIO = {c:25, r:8, e:2.5, l:0.5}, PESO = 30, PMIN = 0.3;
+  const puntosDe = p => Math.max(0, Math.min(100, Math.round(100*(1 - Math.log(Math.max(p,PMIN)/PMIN)/Math.log(100/PMIN)))));
+  const FALSOS = {c:40, r:8, e:2, l:0.3};   // votos simulados de otros jugadores
+  const K = 'legendario-demo';
+  const st = () => { try { return JSON.parse(localStorage.getItem(K)) || {}; } catch(e){ return {}; } };
+  const save = s => { try { localStorage.setItem(K, JSON.stringify(s)); } catch(e){} };
+  const hoyD = () => madridDate();
+  const Pq = id => PREGUNTAS.find(p => p.pregunta_id === id);
+
+  function calcular(q){
+    const list = entries(q);
+    const votos = list.map(e => Math.round(FALSOS[e.tier] * (0.5 + (hash(e.display) % 100) / 100)));
+    const tot = votos.reduce((a,b)=>a+b,0), w = PESO/(PESO+tot);
+    return list.map((e,i) => {
+      const p = Math.round((w*PREVIO[e.tier] + (1-w)*(tot ? votos[i]*100/tot : 0))*10)/10;
+      return {nombre:e.display, pct:p, puntos:puntosDe(p),
+              nivel: p>=15?'c':p>=4?'r':p>=1?'e':'l'};
+    }).sort((a,b)=>a.pct-b.pct || a.nombre.localeCompare(b.nombre,'es'));
+  }
+  function resultado(dia, id){
+    const pa = (st()[dia]||{})[id]; if (!pa) return null;
+    const c = pa.respuesta ? calcular(Pq(id)).find(x => x.nombre === pa.respuesta) : null;
+    return {estado:pa.estado, segundos:pa.segundos ?? null, respuesta:pa.respuesta ?? null, pct:c?c.pct:null, puntos:c?c.puntos:0, nivel:c?c.nivel:null};
+  }
+  const pub = p => ({posicion:PREGUNTAS.indexOf(p)+1, pregunta_id:p.pregunta_id, juego_id:p.juego_id, texto:p.texto, n:entries(p).length});
+  const fail = m => { throw new Error(m); };
+
+  const fns = {
+    catalogo(){
+      return {hoy:hoyD(), segundos:TIME, juegos:JUEGOS.map(g => ({...g,
+        nombres:[...PREGUNTAS.filter(p=>p.juego_id===g.id).flatMap(p=>TIER_ORDER.flatMap(t=>p[t]||[])), ...(g.extra||[])]}))};
+    },
+    obtener_reto(){
+      const d = hoyD(), s = st(); s[d] = s[d] || {};
+      Object.values(s[d]).forEach(pa => { if (pa.estado==='pendiente' && Date.now()-pa.inicio > (TIME+3)*1000) pa.estado='tiempo'; });
+      save(s);
+      return {dia:d, preguntas:PREGUNTAS.map(p => ({...pub(p), resultado:resultado(d, p.pregunta_id)}))};
+    },
+    empezar({p_pregunta}){
+      const d = hoyD(), s = st(); s[d] = s[d] || {};
+      if (!Pq(p_pregunta)) fail('pregunta_no_es_de_hoy');
+      const pa = s[d][p_pregunta] = s[d][p_pregunta] || {estado:'pendiente', inicio:Date.now()};
+      const restan = TIME - (Date.now()-pa.inicio)/1000;
+      if (pa.estado==='pendiente' && restan < -3) pa.estado='tiempo';
+      save(s);
+      return {restan:Math.max(0, Math.round(restan*10)/10), ...resultado(d, p_pregunta)};
+    },
+    responder({p_pregunta, p_texto}){
+      const d = hoyD(), s = st(), pa = (s[d]||{})[p_pregunta];
+      if (!pa) fail('no_empezada');
+      if (pa.estado!=='pendiente') return {valida:pa.estado==='ok', ...resultado(d, p_pregunta)};
+      const seg = (Date.now()-pa.inicio)/1000;
+      if (seg > TIME+3){ pa.estado='tiempo'; save(s); return {valida:false, ...resultado(d, p_pregunta)}; }
+      const hit = findAnswer(p_texto, Pq(p_pregunta));
+      if (!hit) return {valida:false, estado:'pendiente'};
+      Object.assign(pa, {estado:'ok', respuesta:hit.display, segundos:Math.min(TIME, Math.round(seg*10)/10)}); save(s);
+      return {valida:true, ...resultado(d, p_pregunta)};
+    },
+    pasar({p_pregunta, p_motivo}){
+      const d = hoyD(), s = st(), pa = (s[d]||{})[p_pregunta];
+      if (pa && pa.estado==='pendiente'){ pa.estado = p_motivo==='tiempo'?'tiempo':'pasada'; save(s); }
+      return resultado(d, p_pregunta) || {};
+    },
+    resultados_dia({p_dia}){
+      const d = p_dia || hoyD();
+      if (d !== hoyD()) return {dia:d, definitivo:true, preguntas:[]};
+      return {dia:d, definitivo:false, preguntas:PREGUNTAS.map(p => {
+        const r = resultado(d, p.pregunta_id);
+        return {...pub(p), resultado:r, jugadores:null, todas: r && r.estado!=='pendiente' ? calcular(p) : null};
+      })};
+    },
+    preguntas_practica({p_juego}){
+      return shuffle(PREGUNTAS.filter(p => !p_juego || p.juego_id===p_juego), rng(Date.now()>>>0)).map(pub);
+    },
+    responder_practica({p_pregunta, p_texto}){
+      const hit = findAnswer(p_texto, Pq(p_pregunta)); if (!hit) return {valida:false};
+      const c = calcular(Pq(p_pregunta)).find(x => x.nombre===hit.display);
+      return {valida:true, estado:'ok', respuesta:hit.display, pct:c.pct, puntos:c.puntos, nivel:c.nivel};
+    },
+    respuestas_practica({p_pregunta}){ return calcular(Pq(p_pregunta)); },
+  };
+  return { call: async (fn, args) => { await new Promise(r => setTimeout(r, 120)); if (!fns[fn]) fail('Función desconocida: '+fn); return fns[fn](args||{}); } };
+})();
+
+
+/* ---------- utilidades ---------- */
+const DEMO = !CONFIG.SUPABASE_URL || !CONFIG.SUPABASE_KEY;
 const $ = s => document.querySelector(s);
-const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store = {
   get(k,def){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):def; }catch(e){ return def; } },
   set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 };
-const gameById = id => JUEGOS.find(g=>g.id===id);
-const qById = (gid,qid) => { const g=gameById(gid); return g && (g.preguntas||[]).find(q=>q.id===qid); };
+const pctTxt = p => (p==null ? '–' : String(Math.round(p*10)/10).replace('.',',')) + '%';
+const secTxt = s => String(s ?? 0).replace('.',',') + ' s';
+function uuid(){
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==='x'?r:(r&3|8)).toString(16);});
+}
+let JUGADOR = store.get('legendario-jugador', null);
+if (!JUGADOR){ JUGADOR = uuid(); store.set('legendario-jugador', JUGADOR); }
 
-/* ---------- reto del día ---------- */
-const today = madridDate();
-const dayNum = Math.max(0, dayDiff(today));
-let _sched = null;
-const schedule = () => _sched || (_sched = buildSchedule(JUEGOS, dayNum));
-const activeGames = () => JUEGOS.filter(g => isOn(g, dayNum) && (g.preguntas||[]).some(q => isOn(q, dayNum)));
-
-function practicePuzzle(onlyGid){
-  const r = rng((Date.now() ^ Math.floor(Math.random()*1e9))>>>0);
-  const pool = activeGames();
-  if (onlyGid){
-    const g = gameById(onlyGid);
-    return shuffle(g.preguntas.filter(q=>isOn(q,dayNum)), r).slice(0,ROUNDS).map(q=>({gid:g.id, qid:q.id}));
-  }
-  return shuffle(pool, r).slice(0,ROUNDS).map(g=>{
-    const qs = g.preguntas.filter(q=>isOn(q,dayNum));
-    return {gid:g.id, qid:qs[Math.floor(r()*qs.length)].id};
-  });
+/* ---------- llamadas al servidor ---------- */
+const MSG = {
+  pregunta_no_es_de_hoy:'Esta pregunta ya no es del reto de hoy. Recarga la página.',
+  no_empezada:'La pregunta no se ha iniciado bien. Recarga la página.',
+  no_disponible:'Esta pregunta no está disponible ahora mismo para practicar.',
+  dia_futuro:'Ese día todavía no ha llegado.',
+  limite_red:'Desde tu conexión ya han jugado esta pregunta varias personas hoy. Prueba mañana o desde otra conexión.',
+  demasiadas_peticiones:'Vas demasiado rápido 😅 Espera un minuto y vuelve a intentarlo.'
+};
+function claveSecreta(k){
+  if (/^sb_secret_/.test(k)) return true;
+  try { const p = JSON.parse(atob(k.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))); return p.role === 'service_role'; } catch(e){ return false; }
+}
+async function api(fn, args={}){
+  if (DEMO) return DemoServer.call(fn, args);
+  if (claveSecreta(CONFIG.SUPABASE_KEY)) throw new Error('⛔ Has puesto la clave SECRETA de Supabase en la web. Quítala ya, cámbiala en Supabase (regenerarla) y pon la clave pública (publishable/anon).');
+  const h = {'Content-Type':'application/json', 'apikey':CONFIG.SUPABASE_KEY};
+  if (CONFIG.SUPABASE_KEY.startsWith('eyJ')) h.Authorization = 'Bearer '+CONFIG.SUPABASE_KEY;
+  let res;
+  try { res = await fetch(CONFIG.SUPABASE_URL.replace(/\/$/,'')+'/rest/v1/rpc/'+fn, {method:'POST', headers:h, body:JSON.stringify(args)}); }
+  catch(e){ throw new Error('No hay conexión con el servidor. Comprueba tu internet.'); }
+  const txt = await res.text(); let data=null; try{ data = txt ? JSON.parse(txt) : null; }catch(e){}
+  if (!res.ok){ const m = data && (data.message||data.hint) || ('Error '+res.status); throw new Error(MSG[m] || m); }
+  return data;
 }
 
-/* ---------- estado ---------- */
-let practice=false, practiceGid=null, S=null, timerId=null;
-function newState(puzzle){
-  return { day:dayNum, puzzle, cur:0, finished:false,
-    rounds: puzzle.map(()=>({status:'pending', startedAt:null, tried:[], answer:null, tier:null, secs:null})) };
-}
-const validPuzzle = p => Array.isArray(p) && p.length && p.every(x => qById(x.gid, x.qid));
-function save(){ if(!practice) store.set('legendario-day-'+dayNum, S); }
-function loadToday(){
-  const s = store.get('legendario-day-'+dayNum, null);
-  if (s && validPuzzle(s.puzzle) && s.rounds && s.rounds.length===s.puzzle.length && s.rounds.every(r=>'startedAt' in r)) return s;
-  return newState(schedule()[dayNum]);
-}
-const Q = i => qById(S.puzzle[i].gid, S.puzzle[i].qid);
-const G = i => gameById(S.puzzle[i].gid);
-const points = r => r.tier ? TIERS[r.tier].pts : 0;
-const total = () => S.rounds.reduce((a,r)=>a+points(r),0);
-const maxScore = () => S.rounds.length*100;
-const practiceLabel = () => practiceGid ? `Práctica · ${gameById(practiceGid).nombre}` : 'Práctica libre';
-const tagHTML = () => practice ? `<span class="practice-tag">🎲 ${esc(practiceLabel().toUpperCase())} · NO CUENTA</span>` : '';
-function stopTimer(){ if (timerId){ clearInterval(timerId); timerId=null; } }
-
-/* ---------- autocompletado ----------
-   Las sugerencias salen de TODOS los nombres del juego (respuestas de todas sus
-   preguntas + la lista "extra" de nombres señuelo), así no delatan qué vale. */
+/* ---------- catálogo ---------- */
+let CAT = null;
+const gameById = id => CAT && CAT.juegos.find(g=>g.id===id) || {id, nombre:id, icono:'🎮', info:{}, nombres:[]};
+const plain = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const _pool = {};
 function poolFor(gid){
   if (_pool[gid]) return _pool[gid];
-  const g = gameById(gid), map = new Map();
-  const add = str => { const p=parseLine(str); if(!p.display) return; const k=norm(p.display);
-    const pl = String(str).split('|').map(plain).filter(Boolean);
+  const map = new Map();
+  (gameById(gid).nombres||[]).forEach(line=>{
+    const p = parseLine(line); if (!p.display) return;
+    const k = norm(p.display), pl = String(line).split('|').map(plain).filter(Boolean);
     if (map.has(k)){ const m=map.get(k); p.keys.forEach(x=>{ if(!m.keys.includes(x)) m.keys.push(x); }); pl.forEach(x=>{ if(!m.plains.includes(x)) m.plains.push(x); }); }
-    else map.set(k, {display:p.display, keys:p.keys.slice(), plains:pl}); };
-  (g.preguntas||[]).forEach(q => TIER_ORDER.forEach(t => (q[t]||[]).forEach(add)));
-  (g.extra||[]).forEach(add);
+    else map.set(k, {display:p.display, keys:p.keys.slice(), plains:pl});
+  });
   return _pool[gid] = [...map.values()];
 }
-const plain = s => String(s).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
 function suggestions(text, gid){
   const n = norm(text), np = plain(text); if (np.length < 2) return [];
   const scored = [];
   for (const e of poolFor(gid)){
-    let s = -1;
-    const pd = plain(e.display);
+    let s = -1; const pd = plain(e.display);
     if (pd.startsWith(np) || norm(e.display).startsWith(n)) s = 0;
     else if (e.keys.some(k=>k.startsWith(n)) || e.plains.some(k=>k.startsWith(np))) s = 1;
     else if (np.length>=3 && e.plains.some(k=>k.includes(np))) s = 2;
@@ -1438,52 +693,111 @@ function suggestions(text, gid){
   return scored.slice(0,5).map(x=>x.e.display);
 }
 function highlight(display, text){
-  const plain = display.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  const plainD = display.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
   const t = String(text).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
-  const i = t ? plain.indexOf(t) : -1;
+  const i = t ? plainD.indexOf(t) : -1;
   if (i<0) return esc(display);
   return esc(display.slice(0,i)) + '<mark>' + esc(display.slice(i,i+t.length)) + '</mark>' + esc(display.slice(i+t.length));
 }
 
-/* ---------- partida ---------- */
+/* ---------- estado de la partida ----------
+   S = { modo:'diario'|'practica'|'ayer', dia, preguntas:[{pregunta_id, juego_id, texto, n, resultado}], cur } */
+let S = null, practiceGid = null, timerId = null, busy = false;
+const hoy = () => CAT ? CAT.hoy : madridDate();
+const numReto = d => dayDiff(d) + 1;
+const done = q => q.resultado && q.resultado.estado && q.resultado.estado !== 'pendiente';
+const total = () => S.preguntas.reduce((a,q)=>a+(done(q)?(q.resultado.puntos||0):0),0);
+const maxScore = () => S.preguntas.length*100;
+const practiceLabel = () => practiceGid ? `Práctica · ${gameById(practiceGid).nombre}` : 'Práctica libre';
+const tagHTML = () => S.modo==='practica' ? `<span class="practice-tag">🎲 ${esc(practiceLabel().toUpperCase())} · NO CUENTA</span>` : '';
+function stopTimer(){ if (timerId){ clearInterval(timerId); timerId=null; } }
+function loading(msg='Cargando…'){ $('#main').innerHTML = `<div class="loading"><div class="spin"></div>${esc(msg)}</div>`; }
+function showError(err, retry){
+  stopTimer();
+  $('#main').innerHTML = `<div class="card" style="text-align:center"><div style="font-size:34px">😵</div>
+    <div class="question" style="font-size:18px">Algo ha fallado</div><div class="meta">${esc(err.message||err)}</div>
+    <button class="btn" id="retry">Reintentar</button></div>`;
+  $('#retry').addEventListener('click', retry);
+}
+
 function renderPills(){
-  $('#pills').innerHTML = S.rounds.map((r,i)=>{
+  $('#pills').innerHTML = S.preguntas.map((q,i)=>{
     let c='pill';
-    if (r.tier) c+=' t-'+r.tier;
-    else if (r.status!=='pending') c+=' t-x';
-    else if (i===S.cur && !S.finished) c+=' now';
+    if (done(q)) c += q.resultado.nivel ? ' t-'+q.resultado.nivel : ' t-x';
+    else if (i===S.cur && S.modo!=='ayer') c+=' now';
     return `<div class="${c}"></div>`;
   }).join('');
 }
-const timeLeft = r => TIME - (Date.now() - r.startedAt)/1000;
+const nextIndex = () => S.preguntas.findIndex(q=>!done(q));
 
-function renderRound(){
-  stopTimer();
-  const i=S.cur, r=S.rounds[i], q=Q(i), g=G(i);
+async function startDaily(){
+  stopTimer(); loading('Preparando el reto de hoy…');
+  try {
+    const r = await api('obtener_reto', {p_jugador:JUGADOR});
+    S = { modo:'diario', dia:r.dia, preguntas:r.preguntas, cur:0 };
+    if (!S.preguntas.length){ $('#main').innerHTML='<div class="card"><div class="question">Hoy no hay reto disponible.</div></div>'; return; }
+    const i = nextIndex();
+    if (i<0) return showResults();
+    S.cur = i; renderRound();
+  } catch(e){ showError(e, startDaily); }
+}
+async function startPracticeFlow(){
+  stopTimer(); loading('Buscando preguntas de práctica…');
+  try {
+    const qs = await api('preguntas_practica', practiceGid ? {p_juego:practiceGid} : {});
+    if (!qs.length){ $('#main').innerHTML='<div class="card"><div class="question">No hay preguntas de práctica disponibles ahora mismo.</div><div class="meta">Las preguntas del reto de hoy no se pueden practicar.</div></div>'; return; }
+    S = { modo:'practica', dia:hoy(), preguntas:qs.map(q=>({...q, resultado:null})), cur:0 };
+    renderRound();
+  } catch(e){ showError(e, startPracticeFlow); }
+}
+async function startYesterday(){
+  stopTimer(); loading('Cargando el reto de ayer…');
+  try {
+    const d = dateOfDay(dayDiff(hoy())-1);
+    S = { modo:'ayer', dia:d, preguntas:[], cur:0 };
+    await showResults(d);
+  } catch(e){ showError(e, startYesterday); }
+}
+
+async function renderRound(){
+  stopTimer(); busy=false;
+  const i=S.cur, q=S.preguntas[i], g=gameById(q.juego_id);
   renderPills();
-  if (r.status!=='pending') return renderReveal();
-  if (!r.startedAt){ r.startedAt = Date.now(); save(); }
-  if (timeLeft(r) <= 0){ r.status='timeout'; save(); return renderReveal(); }
+  let deadline;
+  if (S.modo==='diario'){
+    loading();
+    try {
+      const r = await api('empezar', {p_jugador:JUGADOR, p_pregunta:q.pregunta_id});
+      q.resultado = r;
+      if (done(q)) return renderReveal();
+      deadline = Date.now() + r.restan*1000;
+    } catch(e){ return showError(e, renderRound); }
+  } else {
+    if (done(q)) return renderReveal();
+    q._deadline = q._deadline || Date.now() + TIME*1000;
+    deadline = q._deadline;
+  }
+  q._tried = q._tried || [];
 
   $('#main').innerHTML = `${tagHTML()}
     <div class="card" id="card">
-      <span class="round-n">${i+1} / ${S.rounds.length}</span>
+      <span class="round-n">${i+1} / ${S.preguntas.length}</span>
       <span class="chip">${g.icono} ${esc(g.nombre)}</span>
       <div class="question">${esc(q.texto)}</div>
-      <div class="meta">${entries(q).length} respuestas válidas · cuanto más rara, más puntos</div>
+      <div class="meta">${q.n} respuestas válidas · cuanto menos gente diga lo mismo, más puntos</div>
       <div class="timer" id="timer"><div class="tbar"><div class="tfill" id="tfill"></div></div><div class="tnum" id="tnum">${TIME}</div></div>
       <form class="row" id="form" autocomplete="off">
         <div class="inp-wrap">
           <input type="text" id="inp" placeholder="Escribe tu respuesta…" maxlength="60" aria-label="Tu respuesta" autocomplete="off" autocapitalize="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-controls="sugg" aria-expanded="false">
           <ul class="sugg" id="sugg" role="listbox"></ul>
         </div>
-        <button class="btn" type="submit">Responder</button>
+        <button class="btn" type="submit" id="send">Responder</button>
       </form>
       <div class="hint">Las sugerencias son de todo el juego: no te dicen si la respuesta vale.</div>
       <div class="msg" id="msg"></div>
-      <div class="tried" id="tried">${r.tried.map(t=>`<span>${esc(t)}</span>`).join('')}</div>
+      <div class="tried" id="tried">${q._tried.map(t=>`<span>${esc(t)}</span>`).join('')}</div>
       <div class="under">
-        <div class="pts" id="tries">${r.tried.length ? r.tried.length+' intento'+(r.tried.length>1?'s':'')+' fallido'+(r.tried.length>1?'s':'') : ''}</div>
+        <div class="pts" id="tries"></div>
         <button class="btn ghost" id="skip" type="button">Pasar ⏭</button>
       </div>
     </div>`;
@@ -1514,176 +828,233 @@ function renderRound(){
     const v = (sel>=0 && items[sel]) ? items[sel] : inp.value;
     close(); submit(v);
   });
-  $('#skip').addEventListener('click', ()=>{ stopTimer(); r.status='skip'; save(); renderReveal(); });
+  $('#skip').addEventListener('click', ()=>closeRound('pasada'));
   inp.focus({preventScroll:true});
 
   const tick = () => {
-    const left = Math.max(0, timeLeft(r));
+    const left = Math.max(0, (deadline - Date.now())/1000);
     const fill=$('#tfill'), num=$('#tnum'), box=$('#timer');
     if (!fill){ stopTimer(); return; }
     fill.style.width = (left/TIME*100)+'%';
     num.textContent = Math.ceil(left);
     box.className = 'timer' + (left<=5 ? ' danger' : left<=10 ? ' warn' : '');
-    if (left<=0){ stopTimer(); r.status='timeout'; save(); renderReveal(); }
+    if (left<=0){ stopTimer(); closeRound('tiempo'); }
   };
   tick(); timerId = setInterval(tick, 100);
 }
 
-function submit(val){
-  const r=S.rounds[S.cur], q=Q(S.cur), msg=$('#msg'), inp=$('#inp');
-  if (r.status!=='pending' || !norm(val)) return;
-  if (timeLeft(r) <= 0){ stopTimer(); r.status='timeout'; save(); renderReveal(); return; }
-  if (r.tried.some(t=>norm(t)===norm(val))){ msg.className='msg bad'; msg.textContent='Eso ya lo has probado.'; inp.select(); return; }
-  const hit = findAnswer(val,q);
-  if (hit){
-    stopTimer();
-    r.status='ok'; r.answer=hit.display; r.tier=hit.tier;
-    r.secs = Math.min(TIME, Math.round((Date.now()-r.startedAt)/100)/10);
-    save(); renderReveal(); return;
+async function closeRound(motivo){
+  if (busy) return; busy = true; stopTimer();
+  const q = S.preguntas[S.cur];
+  try {
+    if (S.modo==='diario') q.resultado = await api('pasar', {p_jugador:JUGADOR, p_pregunta:q.pregunta_id, p_motivo:motivo});
+    else q.resultado = {estado:motivo, puntos:0};
+    renderReveal();
+  } catch(e){ busy=false; showError(e, renderRound); }
+}
+
+async function submit(val){
+  const q=S.preguntas[S.cur], msg=$('#msg'), inp=$('#inp');
+  if (busy || done(q) || !norm(val)) return;
+  if (q._tried.some(t=>norm(t)===norm(val))){ msg.className='msg bad'; msg.textContent='Eso ya lo has probado.'; inp.select(); return; }
+  busy = true; $('#send').disabled = true;
+  try {
+    const r = S.modo==='diario'
+      ? await api('responder', {p_jugador:JUGADOR, p_pregunta:q.pregunta_id, p_texto:val.trim()})
+      : await api('responder_practica', {p_pregunta:q.pregunta_id, p_texto:val.trim()});
+    busy = false; if ($('#send')) $('#send').disabled = false;
+    if (r.valida){
+      if (S.modo==='practica') r.segundos = Math.round((TIME*1000-(q._deadline-Date.now()))/100)/10;
+      q.resultado = r; stopTimer(); renderReveal(); return;
+    }
+    if (r.estado==='tiempo'){ q.resultado=r; stopTimer(); renderReveal(); return; }
+    if (r.error==='demasiados_intentos'){ msg.className='msg bad'; msg.textContent='Demasiados intentos. Pasa a la siguiente pregunta.'; return; }
+    q._tried.push(val.trim());
+    $('#tried').innerHTML = q._tried.map(t=>`<span>${esc(t)}</span>`).join('');
+    $('#tries').textContent = q._tried.length+' intento'+(q._tried.length>1?'s':'')+' fallido'+(q._tried.length>1?'s':'');
+    msg.className='msg bad'; msg.textContent=`«${val.trim()}» no vale para esta pregunta. ¡Prueba otra!`;
+    const card=$('#card'); card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
+    inp.value=''; inp.focus({preventScroll:true});
+  } catch(e){
+    busy = false; if ($('#send')) $('#send').disabled = false;
+    msg.className='msg bad'; msg.textContent = e.message + ' Vuelve a intentarlo.';
   }
-  r.tried.push(val.trim()); save();
-  $('#tried').innerHTML = r.tried.map(t=>`<span>${esc(t)}</span>`).join('');
-  $('#tries').textContent = r.tried.length+' intento'+(r.tried.length>1?'s':'')+' fallido'+(r.tried.length>1?'s':'');
-  msg.className='msg bad'; msg.textContent=`«${val.trim()}» no vale para esta pregunta. ¡Prueba otra!`;
-  const card=$('#card'); card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
-  inp.value=''; inp.focus({preventScroll:true});
 }
 
 function renderReveal(){
-  stopTimer();
-  const i=S.cur, r=S.rounds[i], g=G(i), last=i===S.rounds.length-1;
+  stopTimer(); busy=false;
+  const i=S.cur, q=S.preguntas[i], r=q.resultado, g=gameById(q.juego_id), last=i===S.preguntas.length-1;
   renderPills();
   let inner;
-  if (r.status==='ok'){
-    const t=TIERS[r.tier];
+  if (r.estado==='ok'){
+    const t=TIERS[r.nivel]||TIERS.c;
     inner = `<div class="badge b-${t.cls}">${t.name.toUpperCase()}</div>
-      <div class="your">Tu respuesta: <b>${esc(r.answer)}</b></div>
-      <div class="pts">+${t.pts} puntos · en ${String(r.secs).replace('.',',')} s</div>`;
+      <div class="your">Tu respuesta: <b>${esc(r.respuesta)}</b></div>
+      <div class="pts">La ha dicho el <b>${pctTxt(r.pct)}</b> de los jugadores</div>
+      <div class="pts">+${r.puntos} puntos${S.modo==='diario'?' <span class="prov">provisional</span>':''} · en ${secTxt(r.segundos)}</div>`;
   } else {
-    const label = r.status==='skip' ? 'PASADA' : '¡TIEMPO!';
+    const label = r.estado==='pasada' ? 'PASADA' : '¡TIEMPO!';
     inner = `<div class="badge b-x">${label}</div>
       <div class="pts">0 puntos · verás todas las respuestas al final</div>
-      ${r.status==='skip' ? `<div class="pts" style="margin-top:8px">¿No conoces ${esc(g.nombre)}? <a href="#juegos" data-go-game="${esc(g.id)}">Descubre de qué va</a></div>` : ''}`;
+      ${r.estado==='pasada' ? `<div class="pts" style="margin-top:8px">¿No conoces ${esc(g.nombre)}? <a href="#juegos" data-go-game="${esc(g.id)}">Descubre de qué va</a></div>` : ''}`;
   }
   $('#main').innerHTML = `${tagHTML()}
     <div class="card">
-      <span class="round-n">${i+1} / ${S.rounds.length}</span>
+      <span class="round-n">${i+1} / ${S.preguntas.length}</span>
       <span class="chip">${g.icono} ${esc(g.nombre)}</span>
-      <div class="question">${esc(Q(i).texto)}</div>
+      <div class="question">${esc(q.texto)}</div>
       <div class="reveal">${inner}</div>
       <button class="btn wide" id="next">${last ? 'Ver resultados 🏆' : 'Siguiente pregunta →'}</button>
     </div>`;
   const b=$('#next'); b.focus({preventScroll:true});
-  b.addEventListener('click', ()=>{ if(last) finish(); else { S.cur++; save(); renderRound(); } });
+  b.addEventListener('click', ()=>{
+    const n = nextIndex();
+    if (n<0) showResults(); else { S.cur=n; renderRound(); }
+  });
 }
 
 function rankName(p,max){
   const f=p/max;
   if (f>=.8) return '👑 Leyenda absoluta';
-  if (f>=.5) return '💜 Jugador épico';
-  if (f>=.24) return '🔷 Buscador de rarezas';
+  if (f>=.6) return '💜 Jugador épico';
+  if (f>=.4) return '🔷 Buscador de rarezas';
   if (p>0) return '🎮 Jugador casual';
   return '💀 Hoy no era tu día';
 }
-const emojiRow = () => S.rounds.map(r=>r.tier?TIERS[r.tier].emoji:'⬛').join('');
-function shareText(){
-  const head = practice ? `LEGENDARIO (${practiceLabel()})` : `LEGENDARIO #${dayNum+1}`;
-  return `${head} · ${total()}/${maxScore()}\n${emojiRow()}\n${rankName(total(),maxScore())}`;
+const emojiRow = () => S.preguntas.map(q=>done(q)&&q.resultado.nivel?TIERS[q.resultado.nivel].emoji:'⬛').join('');
+function shareText(definitivo){
+  const head = S.modo==='practica' ? `LEGENDARIO (${practiceLabel()})` : `LEGENDARIO #${numReto(S.dia)}`;
+  return `${head} · ${total()}/${maxScore()}${S.modo==='practica'||definitivo?'':' (provisional)'}\n${emojiRow()}\n${rankName(total(),maxScore())}`;
 }
-function finish(){
-  if (!S.finished){
-    S.finished=true;
-    if (!practice){
-      const st=store.get('legendario-stats',{played:0,streak:0,maxStreak:0,best:0,sum:0,lastDay:-1});
-      if (st.lastDay!==dayNum){
-        st.played++; st.sum+=total(); st.best=Math.max(st.best,total());
-        st.streak=(st.lastDay===dayNum-1)?st.streak+1:1;
-        st.maxStreak=Math.max(st.maxStreak,st.streak); st.lastDay=dayNum;
-        store.set('legendario-stats',st);
-      }
-    }
-    save();
+function saveStats(){
+  const st=store.get('legendario-stats',{played:0,streak:0,maxStreak:0,best:0,sum:0,lastDay:-1});
+  const d=dayDiff(S.dia);
+  if (st.lastDay!==d){
+    st.played++; st.sum+=total(); st.best=Math.max(st.best,total());
+    st.streak=(st.lastDay===d-1)?st.streak+1:1;
+    st.maxStreak=Math.max(st.maxStreak,st.streak); st.lastDay=d;
+    store.set('legendario-stats',st);
   }
-  renderResults();
 }
-function renderResults(){
-  stopTimer(); renderPills();
-  const p=total();
-  const rows=S.rounds.map((r,i)=>{
-    const q=Q(i), g=G(i);
-    const badge = r.tier ? `<span class="mini b-${r.tier}">${TIERS[r.tier].name}</span>`
-      : `<span class="mini b-x">${r.status==='skip'?'Pasada':'Sin tiempo'}</span>`;
+
+async function showResults(diaPasado){
+  stopTimer(); loading('Calculando rarezas…');
+  let definitivo=false, data;
+  try {
+    if (S.modo==='practica'){
+      data = await Promise.all(S.preguntas.map(q=>api('respuestas_practica',{p_pregunta:q.pregunta_id}).then(t=>({...q, todas:t}))));
+    } else {
+      const r = await api('resultados_dia', diaPasado ? {p_jugador:JUGADOR, p_dia:diaPasado} : {p_jugador:JUGADOR});
+      definitivo = r.definitivo;
+      data = r.preguntas.map(p=>({...p, resultado:p.resultado||{estado:'sin_jugar', puntos:0}, n:null}));
+      S.preguntas = data; S.dia = r.dia;
+      if (S.modo==='diario' && data.every(done)) saveStats();
+    }
+  } catch(e){ return showError(e, ()=>showResults(diaPasado)); }
+  S.preguntas = data; S.cur = data.length-1;
+  renderPills();
+  const p=total(), jugado = data.some(done);
+  const tag = S.modo==='practica' ? '' : definitivo ? '<span class="prov def">definitivo</span>' : '<span class="prov">provisional</span>';
+  const rows = data.map(q=>{
+    const g=gameById(q.juego_id), r=q.resultado||{};
+    const badge = r.nivel ? `<span class="mini b-${r.nivel}">${TIERS[r.nivel].name}</span>`
+      : `<span class="mini b-x">${r.estado==='pasada'?'Pasada':r.estado==='tiempo'?'Sin tiempo':'Sin jugar'}</span>`;
+    const todas = q.todas || [];
+    const max = Math.max(1, ...todas.map(t=>t.pct||0));
     const groups = TIER_ORDER.map(t=>{
-      const list=entries(q).filter(e=>e.tier===t); if(!list.length) return '';
-      return `<div class="tier-h" style="color:var(--${t})">${TIERS[t].name} · ${TIERS[t].pts}</div>
-        <div class="answers">${list.map(e=>`<span class="ans ${e.display===r.answer?'me':''}">${esc(e.display)}</span>`).join('')}</div>`;
+      const list=todas.filter(e=>e.nivel===t); if(!list.length) return '';
+      return `<div class="tier-h" style="color:var(--${t})">${TIERS[t].name}</div>
+        <div class="answers cols">${list.map(e=>`<span class="ans ${e.nombre===r.respuesta?'me':''}"><span class="bar" style="width:${(e.pct||0)/max*100}%"></span><span class="lbl">${esc(e.nombre)}</span><span class="pc">${pctTxt(e.pct)} · ${e.puntos} pts</span></span>`).join('')}</div>`;
     }).join('');
     return `<details class="acc"><summary>
         <div class="sum-text"><div class="sum-game">${g.icono} ${esc(g.nombre)}</div><div class="sum-q">${esc(q.texto)}</div></div>
         ${badge}<span class="arrow">▶</span></summary>
-      <div class="all">${r.answer?`<div class="pts" style="margin:0 0 4px">Tu respuesta: <b style="color:var(--text)">${esc(r.answer)}</b> (${String(r.secs).replace('.',',')} s)</div>`:''}${groups}</div></details>`;
+      <div class="all">
+        ${r.respuesta?`<div class="pts" style="margin:0 0 4px">Tu respuesta: <b style="color:var(--text)">${esc(r.respuesta)}</b> · la dijo el ${pctTxt(r.pct)} · <b style="color:var(--text)">${r.puntos} pts</b></div>`:''}
+        ${q.jugadores!=null?`<div class="pts" style="margin:0 0 4px">${q.jugadores ? (q.jugadores==1 ? 'Basado en lo que respondió otro jugador' : `Basado en lo que respondieron otros ${q.jugadores} jugadores`) : 'Aún no ha respondido nadie más: los % son nuestra estimación inicial'}</div>`:''}
+        ${groups || '<div class="pts">Las respuestas se verán cuando juegues esta pregunta.</div>'}
+      </div></details>`;
   }).join('');
+  const title = S.modo==='ayer' ? `Reto de ayer (#${numReto(S.dia)})` : '';
   $('#main').innerHTML = `
     <div class="card">${tagHTML()}
+      ${title?`<div class="sum-game" style="text-align:center">${esc(title)}</div>`:''}
       <div class="result-top">
+        ${S.modo==='ayer' && !jugado ? '<div class="question">Ayer no jugaste el reto</div><div class="meta">Pero puedes ver todas las respuestas y sus porcentajes.</div>' : `
         <div class="score">${p}<small>/${maxScore()}</small></div>
-        <div class="rank">${rankName(p,maxScore())}</div>
+        <div class="rank">${rankName(p,maxScore())} ${tag}</div>
         <div class="emojis">${emojiRow()}</div>
         <div class="share-row">
           <button class="btn" id="share">Copiar resultado 📋</button>
-          <button class="btn ghost" id="again">${practice?'Otra partida de práctica':'Partida de práctica'}</button>
+          ${S.modo!=='ayer'?`<button class="btn ghost" id="again">${S.modo==='practica'?'Otra partida de práctica':'Partida de práctica'}</button>`:''}
         </div>
         <textarea class="fallback" id="fallback" rows="4" readonly></textarea>
-        <div class="msg" id="shareMsg" style="text-align:center"></div>
+        <div class="msg" id="shareMsg" style="text-align:center"></div>`}
       </div>
-      ${practice?'<a class="btn ghost wide" href="#jugar">Ir al reto de hoy</a>':'<div class="next">Siguiente reto en <b class="countdown">--:--:--</b></div>'}
+      ${S.modo==='practica' ? '<a class="btn ghost wide" href="#jugar">Ir al reto de hoy</a>'
+        : S.modo==='ayer' ? '<a class="btn ghost wide" href="#jugar">Ir al reto de hoy</a>'
+        : `<div class="next">Puntos provisionales: mañana serán definitivos.<br>Siguiente reto en <b class="countdown">--:--:--</b></div>`}
     </div>
-    <div style="margin-top:18px;color:var(--muted);font-size:14px">Todas las respuestas, por rareza (toca para desplegar):</div>
+    <div style="margin-top:18px;color:var(--muted);font-size:14px">Todas las respuestas y lo que ha dicho la gente (toca para desplegar):</div>
     ${rows}`;
-  $('#share').addEventListener('click', async()=>{
-    const txt=shareText(), m=$('#shareMsg');
+  const sh=$('#share');
+  if (sh) sh.addEventListener('click', async()=>{
+    const txt=shareText(definitivo), m=$('#shareMsg');
     try{ await navigator.clipboard.writeText(txt); m.textContent='¡Copiado! Pégalo donde quieras.'; }
     catch(e){ const f=$('#fallback'); f.style.display='block'; f.value=txt; f.select(); m.textContent='Cópialo desde aquí:'; }
   });
-  $('#again').addEventListener('click', ()=>startPractice(practice?practiceGid:null));
+  const ag=$('#again'); if (ag) ag.addEventListener('click', ()=>startPractice(S.modo==='practica'?practiceGid:null));
   tickClock();
 }
-function startGameView(){ S.finished ? renderResults() : renderRound(); }
+
 function startPractice(gid){
-  practiceGid = gid || null; practice = true;
-  S = newState(practicePuzzle(practiceGid));
+  practiceGid = gid || null;
   if (location.hash!=='#practica') location.hash='practica';
-  else { showView('jugar'); startGameView(); scrollTo(0,0); }
+  else { showView('jugar'); startPracticeFlow(); scrollTo(0,0); }
 }
 
 /* ---------- menú ---------- */
-function renderHome(){
-  const s=loadToday();
+async function renderHome(){
   const st=store.get('legendario-stats',{streak:0,lastDay:-1});
-  const streak=(st.lastDay===dayNum||st.lastDay===dayNum-1)?st.streak:0;
+  const d=dayDiff(hoy());
+  const streak=(st.lastDay===d||st.lastDay===d-1)?st.streak:0;
   const btn=$('#heroBtn'), status=$('#heroStatus');
-  $('#heroTag').textContent=`Reto #${dayNum+1} · ${new Date(today+'T12:00:00').toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}`;
-  const pts=s.rounds.reduce((a,r)=>a+points(r),0);
-  if (s.finished){
-    btn.textContent='🏆 Ver mis resultados';
-    status.innerHTML=`<span>Completado: <b>${pts}/${s.rounds.length*100}</b></span><span>·</span><span>Siguiente en <b class="countdown">--:--:--</b></span>`;
-  } else if (s.rounds.some(r=>r.status!=='pending'||r.startedAt)){
-    btn.textContent=`▶ Continuar (pregunta ${s.cur+1}/${s.rounds.length})`;
-    status.innerHTML=`<span>Llevas <b>${pts}</b> puntos · ⏱️ el tiempo sigue corriendo</span>`;
-  } else {
-    btn.textContent='▶ Jugar el reto de hoy';
-    status.innerHTML=`<span>Te quedan <b class="countdown">--:--:--</b> para jugarlo</span>`;
-  }
+  $('#heroTag').textContent=`Reto #${numReto(hoy())} · ${new Date(hoy()+'T12:00:00').toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}`;
+  $('#demoBox').innerHTML = DEMO ? '<div class="demo-banner">🧪 Modo demo: la web no está conectada al servidor. Las preguntas son de prueba y los porcentajes son estimados.</div>' : '';
+  btn.textContent='▶ Jugar el reto de hoy';
+  status.innerHTML=`<span>Te quedan <b class="countdown">--:--:--</b> para jugarlo</span>`;
   if (streak>0) status.innerHTML+=`<span>·</span><span>🔥 Racha: <b>${streak}</b></span>`;
-  const n=activeGames().length;
-  $('#tileGames').textContent=`De qué va cada uno de los ${n} juegos y cómo empezar.`;
-  $('#gameStrip').innerHTML=activeGames().map(g=>`<a class="chip" style="text-decoration:none" href="#juegos" data-go-game="${esc(g.id)}">${g.icono} ${esc(g.nombre)}</a>`).join('');
+  const juegos = CAT ? CAT.juegos : [];
+  $('#tileGames').textContent=`De qué va cada uno de los ${juegos.length} juegos y cómo empezar.`;
+  $('#gameStrip').innerHTML=juegos.map(g=>`<a class="chip" style="text-decoration:none" href="#juegos" data-go-game="${esc(g.id)}">${g.icono} ${esc(g.nombre)}</a>`).join('');
   tickClock();
+  try {
+    const [r, ay] = await Promise.all([
+      api('obtener_reto', {p_jugador:JUGADOR}),
+      api('resultados_dia', {p_jugador:JUGADOR, p_dia:dateOfDay(d-1)}).catch(()=>null)
+    ]);
+    const qs=r.preguntas, pts=qs.reduce((a,q)=>a+(done(q)?q.resultado.puntos||0:0),0);
+    if (qs.length && qs.every(done)){
+      btn.textContent='🏆 Ver mis resultados';
+      status.innerHTML=`<span>Hoy llevas <b>${pts}/${qs.length*100}</b> (provisional)</span><span>·</span><span>Siguiente en <b class="countdown">--:--:--</b></span>`;
+    } else if (qs.some(q=>q.resultado)){
+      btn.textContent=`▶ Continuar (pregunta ${qs.findIndex(q=>!done(q))+1}/${qs.length})`;
+      status.innerHTML=`<span>Llevas <b>${pts}</b> puntos · ⏱️ el tiempo de la pregunta empezada sigue corriendo</span>`;
+    }
+    if (streak>0) status.innerHTML+=`<span>·</span><span>🔥 Racha: <b>${streak}</b></span>`;
+    if (ay && ay.preguntas.length){
+      const jug = ay.preguntas.filter(q=>q.resultado && q.resultado.estado && q.resultado.estado!=='pendiente');
+      const pa = jug.reduce((a,q)=>a+(q.resultado.puntos||0),0);
+      $('#ydayBox').innerHTML = `<div class="yday">📅 ${jug.length ? `Ayer sacaste <b>${pa}/${ay.preguntas.length*100}</b> <span class="prov def">definitivo</span>` : 'Ayer no jugaste.'} <a class="btn ghost" href="#ayer">Ver respuestas de ayer</a></div>`;
+    } else $('#ydayBox').innerHTML='';
+    tickClock();
+  } catch(e){ status.innerHTML=`<span>⚠️ ${esc(e.message)}</span>`; }
 }
 
 /* ---------- guía de juegos ---------- */
 function renderGames(){
-  $('#gamesList').innerHTML = activeGames().map(g=>{
+  const juegos = CAT ? CAT.juegos : [];
+  $('#gamesList').innerHTML = juegos.map(g=>{
     const i=g.info||{}, pegi=String(i.pegi||'');
     const free=/^gratis/i.test(i.precio||'');
     return `<div class="game" id="juego-${esc(g.id)}">
@@ -1704,13 +1075,13 @@ function renderGames(){
         <!-- AFILIADOS: aquí podrías poner un enlace "Consíguelo aquí" con tu enlace de afiliado -->
       </div>
     </div>`;
-  }).join('') + `<div class="game suggest">¿Echas en falta algún juego? Pronto habrá más.<br>Pronto podrás proponer nuevos juegos.</div>`;
+  }).join('') + `<div class="game suggest">¿Echas en falta algún juego? Pronto habrá más.</div>`;
   document.querySelectorAll('[data-practice]').forEach(b=>b.addEventListener('click',()=>startPractice(b.dataset.practice)));
 }
 
 /* ---------- navegación ---------- */
-const VIEWS=['inicio','jugar','practica','juegos','como-jugar','preguntas','privacidad','aviso-legal'];
-const TITLES={inicio:'LEGENDARIO · el reto diario de videojuegos', jugar:'Reto de hoy · LEGENDARIO', practica:'Práctica · LEGENDARIO',
+const VIEWS=['inicio','jugar','practica','ayer','juegos','como-jugar','preguntas','privacidad','aviso-legal'];
+const TITLES={inicio:'LEGENDARIO · el reto diario de videojuegos', jugar:'Reto de hoy · LEGENDARIO', practica:'Práctica · LEGENDARIO', ayer:'Reto de ayer · LEGENDARIO',
   juegos:'Descubre los juegos · LEGENDARIO', 'como-jugar':'Cómo se juega · LEGENDARIO', preguntas:'Preguntas frecuentes · LEGENDARIO',
   privacidad:'Privacidad y cookies · LEGENDARIO', 'aviso-legal':'Aviso legal · LEGENDARIO'};
 let scrollToGame=null;
@@ -1722,12 +1093,11 @@ function route(){
   let v=location.hash.slice(1)||'inicio';
   if (!VIEWS.includes(v)) v='inicio';
   document.title=TITLES[v];
-  if (v==='jugar'){ practice=false; practiceGid=null; S=loadToday(); showView('jugar'); startGameView(); }
-  else if (v==='practica'){
-    if (!practice || !S) { practice=true; S=newState(practicePuzzle(practiceGid)); }
-    showView('jugar'); startGameView();
-  } else {
-    practice=false; practiceGid=null;
+  if (v==='jugar'){ showView('jugar'); startDaily(); }
+  else if (v==='practica'){ showView('jugar'); startPracticeFlow(); }
+  else if (v==='ayer'){ showView('jugar'); startYesterday(); }
+  else {
+    practiceGid=null;
     showView(v);
     if (v==='inicio') renderHome();
     if (v==='juegos') renderGames();
@@ -1743,9 +1113,10 @@ document.addEventListener('click', e=>{
 });
 
 /* ---------- cuenta atrás ---------- */
+let bootDay = null;
 function tickClock(){
+  if (bootDay && madridDate()!==bootDay && !document.querySelector('#timer')){ location.reload(); return; }
   const els=document.querySelectorAll('.countdown'); if(!els.length) return;
-  if (madridDate()!==today){ location.reload(); return; }
   const p=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Madrid',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date()).split(':').map(Number);
   const left=86400-((p[0]%24)*3600+p[1]*60+p[2]);
   const txt=[Math.floor(left/3600),Math.floor(left%3600/60),left%60].map(n=>String(n).padStart(2,'0')).join(':');
@@ -1760,17 +1131,24 @@ document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e
 }));
 $('#btnStats').addEventListener('click',()=>{
   const st=store.get('legendario-stats',{played:0,streak:0,maxStreak:0,best:0,sum:0,lastDay:-1});
-  const streak=(st.lastDay===dayNum||st.lastDay===dayNum-1)?st.streak:0;
+  const d=dayDiff(hoy());
+  const streak=(st.lastDay===d||st.lastDay===d-1)?st.streak:0;
   const avg=st.played?Math.round(st.sum/st.played):0;
   $('#statsBox').innerHTML=`<div><b>${st.played}</b><span>Jugados</span></div><div><b>${streak}</b><span>Racha</span></div>
-    <div><b>${st.best}</b><span>Mejor</span></div><div><b>${avg}</b><span>Media</span></div>`;
+    <div><b>${st.best}</b><span>Mejor</span></div><div><b>${avg}</b><span>Media</span></div>
+    <p style="grid-column:1/-1;font-size:12px;color:var(--muted);margin-top:8px">Mejor y media se calculan con tus puntos al terminar cada reto.</p>`;
   openModal('#statsModal');
 });
 $('#tilePractice').addEventListener('click',()=>startPractice(null));
 
 /* ---------- arranque ---------- */
-if (!store.get('legendario-seen-help',false)){ openModal('#helpModal'); store.set('legendario-seen-help',true); }
-route();
+(async function boot(){
+  bootDay = madridDate();
+  try { CAT = await api('catalogo'); }
+  catch(e){ CAT = {hoy:madridDate(), juegos:[]}; console.error(e); }
+  if (!store.get('legendario-seen-help',false)){ openModal('#helpModal'); store.set('legendario-seen-help',true); }
+  route();
+})();
 </script>
 </body>
 </html>
