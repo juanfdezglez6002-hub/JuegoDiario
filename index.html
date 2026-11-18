@@ -1512,9 +1512,10 @@ async function renderHome(){
   };
   pintarHeroe();
   $('#demoBox').innerHTML = DEMO ? '<div class="demo-banner">🧪 Modo demo: la web no está conectada al servidor. Las preguntas son de prueba y los porcentajes son estimados.</div>' : '';
+  const rachaHTML = streak>0 ? `<span>·</span><span>🔥 Racha: <b>${streak}</b></span>` : '';
+  const ponerEstado = html => { status.innerHTML = html + rachaHTML; };
   btn.textContent='▶ Jugar el reto de hoy';
-  status.innerHTML=`<span>Te quedan <b class="countdown">--:--:--</b> para jugarlo</span>`;
-  if (streak>0) status.innerHTML+=`<span>·</span><span>🔥 Racha: <b>${streak}</b></span>`;
+  ponerEstado(`<span>Te quedan <b class="countdown">--:--:--</b> para jugarlo</span>`);
   const juegos = CAT ? CAT.juegos : [];
   $('#tileGames').textContent=`De qué va cada uno de los ${juegos.length} juegos y cómo empezar.`;
   $('#gameStrip').innerHTML=juegos.map(g=>`<a class="chip" style="text-decoration:none" href="#juegos" data-go-game="${esc(g.id)}">${g.icono} ${esc(g.nombre)}</a>`).join('');
@@ -1529,12 +1530,14 @@ async function renderHome(){
       const dañoHoy = pts, pvHoy = jefeVista(hoy()).pv;
       $('#heroBoss').classList.toggle('ko', dañoHoy >= pvHoy);
       btn.textContent='🏆 Ver mis resultados';
-      status.innerHTML=`<span>Hoy llevas <b>${pts}/${qs.length*100}</b> (provisional)</span><span>·</span><span>Siguiente en <b class="countdown">--:--:--</b></span>`;
+      ponerEstado(`<span>Hoy llevas <b>${pts}/${qs.length*100}</b> (provisional)</span><span>·</span><span>Siguiente en <b class="countdown">--:--:--</b></span>`);
     } else if (qs.some(q=>q.resultado)){
       btn.textContent=`▶ Continuar (pregunta ${qs.findIndex(q=>!done(q))+1}/${qs.length})`;
-      status.innerHTML=`<span>Llevas <b>${pts}</b> puntos · ⏱️ el tiempo de la pregunta empezada sigue corriendo</span>`;
+      ponerEstado(`<span>Llevas <b>${pts}</b> puntos · ⏱️ el tiempo de la pregunta empezada sigue corriendo</span>`);
+    } else {
+      btn.textContent='▶ Jugar el reto de hoy';
+      ponerEstado(`<span>Te quedan <b class="countdown">--:--:--</b> para jugarlo</span>`);
     }
-    if (streak>0) status.innerHTML+=`<span>·</span><span>🔥 Racha: <b>${streak}</b></span>`;
     if (ay && ay.preguntas.length){
       const jug = ay.preguntas.filter(q=>q.resultado && q.resultado.estado && q.resultado.estado!=='pendiente');
       const pa = jug.reduce((a,q)=>a+(q.resultado.puntos||0),0);
@@ -1543,7 +1546,7 @@ async function renderHome(){
       $('#ydayBox').innerHTML = `<div class="yday">📅 ${jug.length ? `Ayer sacaste <b>${pa}/${ay.preguntas.length*100}</b> <span class="prov def">definitivo</span>` : 'Ayer no jugaste.'} <a class="btn ghost" href="#ayer">Ver respuestas de ayer</a></div>`;
     } else $('#ydayBox').innerHTML='';
     tickClock();
-  } catch(e){ status.innerHTML=`<span>⚠️ ${esc(e.message)}</span>`; }
+  } catch(e){ ponerEstado(`<span>⚠️ ${esc(e.message)}</span>`); }
 }
 
 /* ---------- guía de juegos ---------- */
