@@ -251,8 +251,17 @@
   .liga-name{font-weight:700;color:var(--lc)}
   .lbar{height:7px;border-radius:99px;background:#0f1124;overflow:hidden;margin:6px 0 4px}
   .lfill{height:100%;background:var(--lc);border-radius:99px}
-  .liga-up,.liga-down{flex-basis:100%;font-weight:700;font-size:14px}
-  .liga-up{color:#7ee2a8} .liga-down{color:#ff9a9a}
+  .liga-msg{flex-basis:100%;font-weight:700;font-size:14px;line-height:1.4}
+  .liga-msg.up{color:#7ee2a8} .liga-msg.down{color:#ff9a9a} .liga-msg.info{color:#cfd3ff}
+  .pips{display:flex;gap:6px;margin:7px 0 5px;align-items:center}
+  .pip{width:18px;height:18px;border-radius:50%;border:2px solid var(--lc);background:transparent}
+  .pip.on{background:var(--lc);box-shadow:0 0 8px var(--lc)}
+  .pip.promo{width:auto;height:auto;border:none;font-size:15px;animation:pulse .7s infinite alternate}
+  .liga-promo{font-size:13.5px;font-weight:700;color:#ffd277;margin:2px 0 4px}
+  .boss.promo{border-color:#f5a524;box-shadow:0 0 0 1px #f5a52466 inset,0 0 18px #f5a52433;background:linear-gradient(90deg,#3a2708,#1a1d38)}
+  .boss.promo .boss-tag{background:#f5a524;color:#2a1800}
+  .hero-boss.promo{border-color:#f5a524;box-shadow:0 0 16px #f5a52444}
+  .hb-extra{color:#ffd277;font-weight:700}
   @media (prefers-reduced-motion:reduce){.hb-spr,.boss.hurt .boss-spr,.boss.taunt .boss-spr,.dmg{animation:none}}
   /* --- huecos de anuncios --- */
   .ad-slot{margin:22px 0 0}
@@ -278,7 +287,8 @@
   @media (max-width:380px){
     .wrap{padding:0 12px}
     .logo{font-size:22px}
-    .icon-btn{width:36px;height:36px;font-size:16px}
+    .icon-btn{width:34px;height:34px;font-size:15px}
+    .icons{gap:6px}
     .hero{padding:18px}
     .card,.prose{padding:16px}
     .menu-grid{gap:8px}
@@ -298,6 +308,7 @@
       <div class="sub" id="sub">El reto diario de respuestas raras</div>
     </div>
     <div class="icons">
+      <button class="icon-btn" id="btnSonido" title="Sonido" aria-label="Activar o silenciar el sonido">🔊</button>
       <button class="icon-btn" id="btnStats" title="Estadísticas" aria-label="Estadísticas">📊</button>
       <a class="icon-btn" href="#como-jugar" title="Cómo se juega" aria-label="Cómo se juega">?</a>
     </div>
@@ -370,7 +381,16 @@
       <h2>El jefe del día ⚔️</h2>
       <p>Cada día aparece un jefe distinto, el mismo para todo el mundo, con entre 200 y 320 puntos de vida (cuantas más estrellas ★, más duro). <b>Cada respuesta es un ataque</b> y hace tanto daño como puntos consigues. Las respuestas épicas son <b>golpes críticos</b> y las legendarias, <b>golpes legendarios</b>. Si al final del reto tu daño total supera su vida, lo derrotas. Como los puntos son provisionales hasta el día siguiente, el resultado contra el jefe también lo es.</p>
       <h2>Tu liga 🏆</h2>
-      <p>Según la media de puntos de tus últimos 7 retos estás en una liga: ⚙️ Hierro, 🥉 Bronce, 🥈 Plata, 🥇 Oro, 💠 Platino, 💎 Diamante, 🔮 Maestro o 👑 Leyenda. Los 3 primeros retos son de clasificación. Juega cada día para subir… y para no bajar.</p>
+      <p>Hay 8 ligas: ⚙️ Hierro, 🥉 Bronce, 🥈 Plata, 🥇 Oro, 💠 Platino, 💎 Diamante, 🔮 Maestro y 👑 Leyenda.</p>
+      <ul>
+        <li><b>Clasificación:</b> tus 3 primeros retos diarios son de clasificación. Al terminarlos empiezas en ⚙️ Hierro.</li>
+        <li><b>Balance:</b> cada día que derrotas al jefe sumas una victoria; si se te escapa, restas una (nunca baja de 0).</li>
+        <li><b>Partida de ascenso:</b> cuando consigues las victorias que pide tu liga (2 en Hierro y Bronce, 3 en Plata, Oro y Platino, 4 en Diamante y Maestro), tu siguiente reto es una partida de ascenso: el jefe es el mismo del día, pero con más vida (un 15% más para salir de Hierro y cada liga un poco más, hasta un 45% para llegar a Leyenda).</li>
+        <li>Si lo derrotas, <b>asciendes</b>. Si se te escapa, te quedas en tu liga y con una victoria más vuelves a tener la partida de ascenso.</li>
+        <li>Tu liga se guarda en este dispositivo, igual que tu racha. Las partidas de práctica no cuentan.</li>
+      </ul>
+      <h2>Sonido 🔊</h2>
+      <p>Cada golpe suena distinto según su rareza, y cada enemigo tiene su propia voz. Puedes silenciarlo con el botón 🔊 de arriba.</p>
       <h2>Los niveles de rareza</h2>
       <div class="tier-list">
         <div class="b-c">Común · 15% o más</div>
@@ -418,7 +438,8 @@
       <details><summary>¿Cómo funciona la racha?</summary><p>Cada día que completas el reto diario tu racha sube en uno. Si un día no juegas, vuelve a empezar. Las partidas de práctica no cuentan.</p></details>
       <details><summary>¿Vais a añadir más juegos?</summary><p>Sí. La lista de juegos y preguntas irá creciendo. Si echas en falta alguno, pronto habilitaremos una forma de proponerlo.</p></details>
       <details><summary>¿Qué es el jefe del día?</summary><p>Es el rival de cada reto. Tiene entre 200 y 320 puntos de vida y tus respuestas le hacen daño: cuantos más puntos sacas en una pregunta, más fuerte es el golpe. Si al terminar las 5 preguntas has hecho más daño que su vida, lo derrotas. Cada día es un jefe distinto, y es el mismo para todos, así que puedes comparar con tus amigos quién lo ha tumbado.</p></details>
-      <details><summary>¿Cómo funciona la liga?</summary><p>Tu liga depende de la media de puntos de tus últimos 7 retos diarios. Al principio juegas 3 retos de clasificación y luego entras en una liga, desde Hierro hasta Leyenda. Si tu media sube, subes de liga; si baja, puedes bajar. Se guarda en tu navegador, igual que tu racha. Las partidas de práctica no cuentan.</p></details>
+      <details><summary>¿Cómo funciona la liga?</summary><p>Juegas 3 retos de clasificación y empiezas en Hierro. Desde ahí, cada día que derrotas al jefe sumas una victoria y cada día que se te escapa restas una. Cuando llegas a las victorias que pide tu liga, tu siguiente reto es una partida de ascenso con el jefe reforzado: si lo derrotas, subes de liga. Así hasta Leyenda. Se guarda en este dispositivo, igual que tu racha, y las partidas de práctica no cuentan.</p></details>
+      <details><summary>¿Se puede quitar el sonido?</summary><p>Sí, con el botón 🔊 de arriba a la derecha. La web recuerda tu elección.</p></details>
       <details><summary>¿Puedo jugar el reto varias veces?</summary><p>No. Cada pregunta del reto diario solo se juega una vez. Desde una misma conexión pueden jugar varias personas (por ejemplo, en una casa o un instituto), pero con un límite, y si varias personas de la misma conexión dan la misma respuesta cuenta como un solo voto. Así nadie puede inflar los porcentajes.</p></details>
       <details><summary>¿Tenéis relación con los juegos que aparecen?</summary><p>No. LEGENDARIO es un proyecto independiente hecho por fans y no está afiliado, patrocinado ni respaldado por ninguna de las compañías propietarias de los juegos mencionados. Todas las marcas pertenecen a sus respectivos dueños y solo se citan para identificar los juegos.</p></details>
       <details><summary>¿Por qué hay anuncios?</summary><p>Los anuncios permiten que el juego siga siendo gratis para todo el mundo y que podamos seguir añadiendo preguntas. Intentamos que no molesten: nunca aparecen en mitad de una pregunta.</p></details>
@@ -798,33 +819,172 @@ function jefeDelDia(dia){
   const d = dayDiff(dia);
   return {...JEFES[hash('jefe-'+d) % JEFES.length], pv: 200 + 20*(hash('pv-'+d) % 7)};
 }
-const estrellas = pv => '★'.repeat(1 + Math.floor((pv-200)/40)) + '☆'.repeat(3 - Math.floor((pv-200)/40));
+// Dificultad: 1-4 estrellas para jefes normales; las partidas de ascenso muy duras pueden llegar a 5.
+const estrellas = pv => { const n = Math.max(1, Math.min(5, 1 + Math.floor((pv-200)/40))); return '★'.repeat(n) + '☆'.repeat(Math.max(0, 4-n)); };
 
-/* ---------- LIGA ----------
-   Rango según la media de tus últimos 7 retos jugados (con 3 de clasificación). */
+/* ---------- LIGA (se guarda en este dispositivo) ----------
+   1) 3 partidas de clasificación → empiezas en Hierro.
+   2) Balance: derrotar al jefe +1, no derrotarlo −1 (mínimo 0).
+   3) Al llegar al balance de tu liga se desbloquea la PARTIDA DE ASCENSO:
+      tu siguiente reto diario, con el jefe del día reforzado (más vida cuanto más alta es la liga).
+   4) Si lo derrotas, asciendes. Si no, te quedas y con 1 victoria más vuelves a tenerla.
+   La vida del jefe de cada día se fija la primera vez que lo ves ese día y ya no cambia. */
 const LIGAS = [
-  {n:'Hierro',   min:0,   i:'⚙️', c:'#9aa0ab'},
-  {n:'Bronce',   min:80,  i:'🥉', c:'#d08a4c'},
-  {n:'Plata',    min:120, i:'🥈', c:'#cbd5e1'},
-  {n:'Oro',      min:160, i:'🥇', c:'#f5c542'},
-  {n:'Platino',  min:200, i:'💠', c:'#5eead4'},
-  {n:'Diamante', min:240, i:'💎', c:'#7cb8ff'},
-  {n:'Maestro',  min:280, i:'🔮', c:'#c084fc'},
-  {n:'Leyenda',  min:330, i:'👑', c:'#ff9d2e'},
+  {n:'Hierro',   i:'⚙️', c:'#9aa0ab'},
+  {n:'Bronce',   i:'🥉', c:'#d08a4c'},
+  {n:'Plata',    i:'🥈', c:'#cbd5e1'},
+  {n:'Oro',      i:'🥇', c:'#f5c542'},
+  {n:'Platino',  i:'💠', c:'#5eead4'},
+  {n:'Diamante', i:'💎', c:'#7cb8ff'},
+  {n:'Maestro',  i:'🔮', c:'#c084fc'},
+  {n:'Leyenda',  i:'👑', c:'#ff9d2e'},
 ];
-const LIGA_RETOS = 7, LIGA_CLASIF = 3;
-function historial(){ return store.get('legendario-historial', {}); }
-function registrarDia(d, p, definitivo){
-  const h = historial();
-  if (!h[d] || definitivo || !h[d].def){ h[d] = {p, def:!!definitivo}; store.set('legendario-historial', h); }
+const LIGA_CLASIF = 3;
+const LIGA_REQ = [2, 2, 3, 3, 3, 4, 4];          // balance necesario para el ascenso desde cada liga
+const promoMult = idx => 1.15 + 0.05*idx;         // Hierro→Bronce +15% de vida … Maestro→Leyenda +45%
+const ULTIMA = LIGAS.length - 1;
+
+function ligaEstado(){
+  const L = store.get('legendario-liga', null);
+  return L && L.dias ? L : {fase:'clasif', clasif:0, idx:0, balance:0, promo:false, promoDesde:null, dias:{}, ganadas:0, jugadas:0};
 }
-function ligaActual(){
-  const ult = Object.entries(historial()).map(([d,v])=>({d:+d, p:v.p})).sort((a,b)=>b.d-a.d).slice(0, LIGA_RETOS);
-  if (ult.length < LIGA_CLASIF) return {clasif:ult.length};
-  const media = Math.round(ult.reduce((a,x)=>a+x.p,0)/ult.length);
-  let k = 0; LIGAS.forEach((l,i)=>{ if (media >= l.min) k = i; });
-  return {liga:LIGAS[k], idx:k, media, sig:LIGAS[k+1]||null, n:ult.length};
+function ligaGuardar(L){ store.set('legendario-liga', L); }
+// Vida del jefe para un día concreto. jefeVista no guarda nada; fijarJefeDia lo deja fijo para ese día.
+function jefeVista(dia){
+  const L = ligaEstado(), d = dayDiff(dia);
+  if (L.dias[d]) return L.dias[d];
+  const base = jefeDelDia(dia).pv;
+  const promo = L.fase==='liga' && L.promo && L.idx < ULTIMA && (L.promoDesde==null || L.promoDesde < d);
+  return {base, pv: promo ? Math.round(base*promoMult(L.idx)/10)*10 : base, promo, desde: promo ? L.idx : null};
 }
+function fijarJefeDia(dia){
+  const L = ligaEstado(), d = dayDiff(dia);
+  if (L.dias[d]) return L.dias[d];
+  const base = jefeDelDia(dia).pv;
+  const promo = L.fase==='liga' && L.promo && L.idx < ULTIMA && (L.promoDesde==null || L.promoDesde < d);
+  const reg = {base, pv: promo ? Math.round(base*promoMult(L.idx)/10)*10 : base, promo, desde: promo ? L.idx : null};
+  L.dias[d] = reg; ligaGuardar(L); return reg;
+}
+// Se llama una vez al terminar el reto diario. Devuelve el mensaje de la liga para ese día.
+function ligaProcesar(dia, daño){
+  const reg0 = fijarJefeDia(dia), L = ligaEstado(), d = dayDiff(dia), reg = L.dias[d] || reg0;
+  if (reg.hecho) return reg.msg;
+  const win = daño >= reg.pv; let msg;
+  L.jugadas = (L.jugadas||0) + 1; if (win) L.ganadas = (L.ganadas||0) + 1;
+  if (L.fase === 'clasif'){
+    L.clasif++;
+    if (L.clasif >= LIGA_CLASIF){ L.fase='liga'; L.idx=0; L.balance=0; msg={t:'up', txt:`🎉 ¡Clasificado! Empiezas en ${LIGAS[0].i} ${LIGAS[0].n}`}; }
+    else msg = {t:'info', txt:`🎯 Partida de clasificación ${L.clasif}/${LIGA_CLASIF} completada`};
+  } else if (reg.promo){
+    L.promo = false; L.promoDesde = null;
+    if (win){ L.idx = Math.min(ULTIMA, L.idx+1); L.balance = 0;
+      msg = {t:'up', ascenso:true, txt: L.idx===ULTIMA ? '👑 ¡HAS LLEGADO A LEYENDA!' : `⬆️ ¡ASCIENDES a ${LIGAS[L.idx].i} ${LIGAS[L.idx].n}!`}; }
+    else { L.balance = Math.max(0, LIGA_REQ[L.idx]-1);
+      msg = {t:'down', txt:'❌ No has superado la partida de ascenso. Con 1 victoria más vuelves a tenerla.'}; }
+  } else if (L.idx < ULTIMA){
+    L.balance = win ? L.balance+1 : Math.max(0, L.balance-1);
+    if (L.balance >= LIGA_REQ[L.idx]){ L.promo = true; L.promoDesde = d;
+      msg = {t:'up', txt:`⚔️ ¡Partida de ascenso desbloqueada! En tu próximo reto el jefe tendrá un ${Math.round((promoMult(L.idx)-1)*100)}% más de vida.`}; }
+    else msg = win ? {t:'up', txt:`✅ Victoria · ${L.balance}/${LIGA_REQ[L.idx]} para la partida de ascenso`}
+                   : {t:'down', txt:`➖ Derrota · ${L.balance}/${LIGA_REQ[L.idx]} para la partida de ascenso`};
+  } else {
+    msg = win ? {t:'up', txt:'👑 Victoria en Leyenda'} : {t:'info', txt:'👑 Sigues en Leyenda'};
+  }
+  L.dias[d] = {...reg, hecho:true, win, msg};
+  Object.keys(L.dias).map(Number).filter(k => k < d-40).forEach(k => delete L.dias[k]);
+  ligaGuardar(L);
+  return msg;
+}
+
+
+/* =========================================================
+   SONIDOS — generados con Web Audio (sin archivos externos)
+   ========================================================= */
+const Sonido = (() => {
+  let ctx = null, master = null;
+  let activo = true;
+  try { activo = localStorage.getItem('legendario-sonido') !== 'off'; } catch(e){}
+
+  function ac(){
+    if (!activo) return null;
+    const C = window.AudioContext || window.webkitAudioContext;
+    if (!C) return null;
+    if (!ctx){ ctx = new C(); master = ctx.createGain(); master.gain.value = 0.55; master.connect(ctx.destination); }
+    if (ctx.state === 'suspended') ctx.resume();
+    return ctx;
+  }
+  // Tono con envolvente. slide: frecuencia final. vib: vibrato {f, d}
+  function tono(freq, dur, o={}){
+    const c = ac(); if (!c) return;
+    const t = c.currentTime + (o.at||0), osc = c.createOscillator(), g = c.createGain();
+    osc.type = o.type || 'square';
+    osc.frequency.setValueAtTime(freq, t);
+    if (o.slide) osc.frequency.exponentialRampToValueAtTime(Math.max(20, o.slide), t + dur);
+    if (o.vib){ const l = c.createOscillator(), lg = c.createGain(); l.frequency.value = o.vib.f; lg.gain.value = o.vib.d; l.connect(lg); lg.connect(osc.frequency); l.start(t); l.stop(t+dur+.05); }
+    const v = o.vol ?? 0.15;
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(v, t + (o.attack||0.005));
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(g); g.connect(master);
+    osc.start(t); osc.stop(t + dur + 0.05);
+  }
+  // Ruido filtrado (golpes, explosiones)
+  function ruido(dur, o={}){
+    const c = ac(); if (!c) return;
+    const t = c.currentTime + (o.at||0), n = Math.floor(c.sampleRate*dur);
+    const buf = c.createBuffer(1, n, c.sampleRate), data = buf.getChannelData(0);
+    for (let i=0;i<n;i++) data[i] = Math.random()*2-1;
+    const src = c.createBufferSource(); src.buffer = buf;
+    const f = c.createBiquadFilter(); f.type = o.filtro || 'lowpass'; f.frequency.value = o.freq || 1200; f.Q.value = o.q || 0.8;
+    const g = c.createGain(), v = o.vol ?? 0.25;
+    g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(f); f.connect(g); g.connect(master); src.start(t); src.stop(t + dur);
+  }
+  const notas = (lista, o={}) => lista.forEach(([f, at, dur]) => tono(f, dur||0.12, {...o, at}));
+
+  const S = {
+    // --- golpes según rareza ---
+    golpe_c(){ ruido(.08,{freq:900,vol:.22}); tono(170,.09,{type:'triangle',slide:90,vol:.18}); },
+    golpe_r(){ ruido(.11,{freq:1700,vol:.26}); tono(260,.11,{type:'square',slide:110,vol:.12}); },
+    golpe_e(){ // crítico
+      ruido(.14,{freq:3200,vol:.3}); tono(420,.12,{type:'square',slide:900,vol:.11});
+      tono(1250,.18,{type:'triangle',at:.07,vol:.12}); tono(1660,.2,{type:'triangle',at:.12,vol:.09});
+    },
+    golpe_l(){ // legendario
+      tono(120,.55,{type:'sine',slide:38,vol:.4}); ruido(.4,{freq:2600,vol:.32});
+      notas([[784,.1,.12],[988,.17,.12],[1175,.24,.12],[1568,.31,.35]],{type:'triangle',vol:.13});
+      tono(2349,.5,{type:'sine',at:.31,vol:.05});
+    },
+    fallo(){ tono(330,.28,{type:'sawtooth',slide:140,vol:.09}); },              // pasar / sin tiempo
+    invalida(){ tono(150,.09,{type:'square',vol:.08}); tono(120,.11,{type:'square',at:.1,vol:.08}); }, // respuesta que no vale
+    tic(){ tono(1400,.03,{type:'square',vol:.03}); },
+    // --- voces de los enemigos al recibir un golpe ---
+    voz_slime(){ tono(520,.16,{type:'sine',slide:180,vol:.14,at:.05}); tono(700,.1,{type:'sine',slide:300,vol:.08,at:.13}); },
+    voz_golem(){ ruido(.3,{freq:260,vol:.35,at:.04}); tono(70,.3,{type:'sawtooth',slide:45,vol:.12,at:.04}); },
+    voz_ghost(){ tono(560,.45,{type:'sine',slide:330,vol:.09,at:.05,vib:{f:9,d:25}}); },
+    voz_robot(){ notas([[880,.05,.05],[660,.12,.05],[990,.19,.06]],{type:'square',vol:.07}); },
+    voz_dragon(){ ruido(.45,{freq:700,filtro:'bandpass',q:1.2,vol:.4,at:.04}); tono(150,.45,{type:'sawtooth',slide:85,vol:.1,at:.04}); },
+    voz_skull(){ for (let k=0;k<6;k++) ruido(.025,{freq:3800,filtro:'bandpass',q:4,vol:.35,at:.05+k*.045}); },
+    // risa del jefe cuando fallas
+    risa(){ notas([[330,0,.08],[262,.11,.08],[330,.22,.08],[262,.33,.12]],{type:'sawtooth',vol:.07}); },
+    // aparición del jefe al empezar
+    aparece(tipo){ tono(90,.5,{type:'sawtooth',slide:180,vol:.08}); const v = S['voz_'+tipo]; if (v) setTimeout(v, 250); },
+    // --- final ---
+    ko(){ ruido(.7,{freq:1100,vol:.4}); tono(100,.7,{type:'sine',slide:30,vol:.35}); },
+    victoria(){ notas([[523,0,.13],[659,.13,.13],[784,.26,.13],[1047,.39,.45]],{type:'square',vol:.1});
+                notas([[262,.39,.45],[392,.39,.45]],{type:'triangle',vol:.1}); },
+    casi(){ notas([[440,0,.14],[415,.16,.14],[392,.32,.35]],{type:'triangle',vol:.12}); },
+    derrota(){ notas([[392,0,.2],[330,.22,.2],[262,.44,.2],[196,.66,.55]],{type:'triangle',vol:.13}); tono(98,.6,{type:'sawtooth',at:.66,vol:.05}); },
+    ascenso(){ const sube = [523,659,784,1047,1319,1568,2093]; sube.forEach((f,i)=>tono(f,.11,{type:'square',at:i*.07,vol:.08}));
+               notas([[1047,.55,.6],[1319,.55,.6],[1568,.55,.6]],{type:'triangle',vol:.08}); ruido(.5,{freq:6000,filtro:'highpass',vol:.06,at:.5}); },
+    clic(){ tono(900,.04,{type:'triangle',vol:.05}); },
+  };
+  return {
+    play(nombre, arg){ try { if (activo && S[nombre]) S[nombre](arg); } catch(e){} },
+    activo: () => activo,
+    alternar(){ activo = !activo; try { localStorage.setItem('legendario-sonido', activo ? 'on' : 'off'); } catch(e){} if (activo) S.clic(); return activo; },
+  };
+})();
 
 
 /* ---------- utilidades ---------- */
@@ -930,14 +1090,18 @@ function showError(err, retry){
 }
 
 /* ---------- panel del jefe ---------- */
-const jefeDe = () => S.modo==='practica' ? MUNECO : jefeDelDia(S.dia);
+function jefeDe(){
+  if (S.modo==='practica') return MUNECO;
+  const reg = S.modo==='diario' ? fijarJefeDia(S.dia) : jefeVista(S.dia);
+  return {...jefeDelDia(S.dia), pv: reg.pv, promo: reg.promo};
+}
 function bossHTML(j, pvAntes, pvAhora, opts={}){
   const pct = v => Math.max(0, Math.min(100, v/j.pv*100));
   const ko = pvAhora <= 0;
-  return `<div class="boss ${opts.big?'big':''} ${ko?'ko':''}" id="boss">
+  return `<div class="boss ${opts.big?'big':''} ${ko?'ko':''} ${j.promo?'promo':''}" id="boss">
     <div class="boss-spr">${spriteSVG(j)}${ko?'<span class="ko-tag">K.O.</span>':''}</div>
     <div class="boss-info">
-      <div class="boss-name">${esc(j.n)} <span class="boss-tag">${j.practica?'Entrenamiento':'Jefe del día'}</span>${!j.practica?`<span class="boss-dif" title="Dificultad">${estrellas(j.pv)}</span>`:''}</div>
+      <div class="boss-name">${esc(j.n)} <span class="boss-tag">${j.practica?'Entrenamiento':j.promo?'⚔️ Partida de ascenso':'Jefe del día'}</span>${!j.practica?`<span class="boss-dif" title="Dificultad">${estrellas(j.pv)}</span>`:''}</div>
       <div class="hpbar"><div class="hpfill" id="hpfill" style="width:${pct(pvAntes)}%" data-fin="${pct(pvAhora)}"></div><span class="hptxt" id="hptxt">${Math.max(0,pvAntes)} / ${j.pv} PV</span></div>
     </div>
   </div>`;
@@ -960,12 +1124,14 @@ function pintarJefe(golpe){
     const etiqueta = r.nivel==='l' ? '¡Golpe legendario!' : r.nivel==='e' ? '¡Crítico!' : '';
     d.innerHTML = (etiqueta ? `<small>${etiqueta}</small>` : '') + '−' + (r.puntos||0);
     el.classList.add('hurt');
+    Sonido.play('golpe_'+(r.nivel||'c')); setTimeout(()=>Sonido.play('voz_'+j.s), r.nivel==='l'?380:90);
   } else {
     d.className = 'dmg miss'; d.textContent = r.estado==='tiempo' ? '¡Demasiado lento!' : '¡Fallo!';
     el.classList.add('taunt');
+    Sonido.play('fallo'); setTimeout(()=>Sonido.play('risa'), 280);
   }
   el.appendChild(d);
-  if (ahora <= 0 && antes > 0){ setTimeout(()=>{ el.classList.add('ko'); el.querySelector('.boss-spr').insertAdjacentHTML('beforeend','<span class="ko-tag">K.O.</span>'); }, 650); }
+  if (ahora <= 0 && antes > 0){ setTimeout(()=>{ Sonido.play('ko'); el.classList.add('ko'); el.querySelector('.boss-spr').insertAdjacentHTML('beforeend','<span class="ko-tag">K.O.</span>'); }, 650); }
 }
 function bossResultHTML(){
   const j = jefeDe(), daño = total(), resto = j.pv - daño;
@@ -989,6 +1155,7 @@ const nextIndex = () => S.preguntas.findIndex(q=>!done(q));
 async function startDaily(){
   stopTimer(); loading('Preparando el reto de hoy…');
   try {
+    await ponerAlDiaLiga();
     const r = await api('obtener_reto', {p_jugador:JUGADOR});
     S = { modo:'diario', dia:r.dia, preguntas:r.preguntas, cur:0 };
     if (!S.preguntas.length){ $('#main').innerHTML='<div class="card"><div class="question">Hoy no hay reto disponible.</div></div>'; return; }
@@ -1036,6 +1203,7 @@ async function renderRound(){
   }
   q._tried = q._tried || [];
   pintarJefe(false);
+  if (!S._aparecido && !S.preguntas.some(done)){ S._aparecido = true; Sonido.play('aparece', jefeDe().s); }
 
   $('#main').innerHTML = `${tagHTML()}
     <div class="card" id="card">
@@ -1131,6 +1299,7 @@ async function submit(val){
     $('#tried').innerHTML = q._tried.map(t=>`<span>${esc(t)}</span>`).join('');
     $('#tries').textContent = q._tried.length+' intento'+(q._tried.length>1?'s':'')+' fallido'+(q._tried.length>1?'s':'');
     msg.className='msg bad'; msg.textContent=`«${val.trim()}» no vale para esta pregunta. ¡Prueba otra!`;
+    Sonido.play('invalida');
     const card=$('#card'); card.classList.remove('shake'); void card.offsetWidth; card.classList.add('shake');
     inp.value=''; inp.focus({preventScroll:true});
   } catch(e){
@@ -1167,7 +1336,7 @@ function renderReveal(){
   const b=$('#next'); b.focus({preventScroll:true});
   b.addEventListener('click', ()=>{
     const n = nextIndex();
-    if (n<0) showResults(); else { S.cur=n; renderRound(); }
+    if (n<0){ S._final = true; showResults(); } else { S.cur=n; renderRound(); }
   });
 }
 
@@ -1184,9 +1353,9 @@ function shareText(definitivo){
   const head = S.modo==='practica' ? `LEGENDARIO (${practiceLabel()})` : `LEGENDARIO #${numReto(S.dia)}`;
   const b = bossResultHTML();
   const est = b.resto<=0 ? `¡DERROTADO! ${b.daño} de daño` : `se escapó con ${b.resto}/${b.j.pv} PV`;
-  const lg = S.modo==='diario' ? ligaActual() : null;
-  const liga = lg && lg.liga ? `\n${lg.liga.i} Liga ${lg.liga.n}` : '';
-  return `${head}${S.modo==='practica'||definitivo?'':' (provisional)'}\n⚔️ ${b.j.n}: ${est}\n${emojiRow()}${liga}`;
+  let liga = '';
+  if (S.modo==='diario'){ const L = ligaEstado(); liga = L.fase==='clasif' ? `\n🎯 Clasificación ${L.clasif}/${LIGA_CLASIF}` : `\n${LIGAS[L.idx].i} Liga ${LIGAS[L.idx].n}`; }
+  return `${head}${S.modo==='practica'||definitivo?'':' (provisional)'}\n${b.j.promo?'🔥 Partida de ascenso\n':''}⚔️ ${b.j.n}: ${est}\n${emojiRow()}${liga}`;
 }
 function saveStats(){
   const st=store.get('legendario-stats',{played:0,streak:0,maxStreak:0,best:0,sum:0,lastDay:-1});
@@ -1241,8 +1410,9 @@ async function showResults(diaPasado){
   const jefeBloque = jugado || S.modo!=='ayer' ? bossResultHTML().html : '';
   let ligaBloque = '';
   if (S.modo==='diario' && data.every(done)){
-    const antes = ligaActual(); registrarDia(dayDiff(S.dia), p, definitivo); const ahora = ligaActual();
-    ligaBloque = ligaHTML(ahora, antes);
+    const msg = ligaProcesar(S.dia, p);
+    ligaBloque = ligaHTML(msg);
+    S._msgLiga = msg;
   }
   $('#main').innerHTML = `
     <div class="card">${tagHTML()}
@@ -1273,6 +1443,12 @@ async function showResults(diaPasado){
     catch(e){ const f=$('#fallback'); f.style.display='block'; f.value=txt; f.select(); m.textContent='Cópialo desde aquí:'; }
   });
   const ag=$('#again'); if (ag) ag.addEventListener('click', ()=>startPractice(S.modo==='practica'?practiceGid:null));
+  if (S._final){
+    S._final = false;
+    const b = bossResultHTML();
+    Sonido.play(b.resto <= 0 ? 'victoria' : b.daño >= b.j.pv*0.75 ? 'casi' : 'derrota');
+    if (S._msgLiga && S._msgLiga.ascenso) setTimeout(()=>Sonido.play('ascenso'), 1100);
+  }
   $('#adResultados').hidden = false; rellenarAnuncios();
   tickClock();
 }
@@ -1285,25 +1461,40 @@ function startPractice(gid){
 }
 
 /* ---------- liga ---------- */
-function ligaHTML(L, antes){
-  if (L.clasif !== undefined){
-    return `<div class="liga"><div class="liga-ico">🎯</div><div class="liga-info"><div class="liga-name">Partidas de clasificación</div>
-      <div class="pts">Juega ${LIGA_CLASIF - L.clasif} reto${LIGA_CLASIF-L.clasif===1?'':'s'} más para entrar en una liga (${L.clasif}/${LIGA_CLASIF})</div>
-      <div class="lbar"><div class="lfill" style="width:${L.clasif/LIGA_CLASIF*100}%"></div></div></div></div>`;
+function ligaHTML(msg){
+  const L = ligaEstado();
+  const aviso = msg ? `<div class="liga-msg ${msg.t==='down'?'down':msg.t==='up'?'up':'info'}">${esc(msg.txt)}</div>` : '';
+  if (L.fase === 'clasif'){
+    return `<div class="liga">${aviso}<div class="liga-ico">🎯</div><div class="liga-info"><div class="liga-name">Partidas de clasificación</div>
+      <div class="pips">${Array.from({length:LIGA_CLASIF},(_,k)=>`<span class="pip ${k<L.clasif?'on':''}"></span>`).join('')}</div>
+      <div class="pts">${L.clasif}/${LIGA_CLASIF} · al completarlas empiezas en ${LIGAS[0].i} ${LIGAS[0].n}</div></div></div>`;
   }
-  let cambio = '';
-  if (antes){
-    if (antes.clasif !== undefined) cambio = `<div class="liga-up">🎉 ¡Clasificado! Entras en ${L.liga.n}</div>`;
-    else if (L.idx > antes.idx) cambio = `<div class="liga-up">⬆️ ¡Subes a ${L.liga.n}!</div>`;
-    else if (L.idx < antes.idx) cambio = `<div class="liga-down">⬇️ Bajas a ${L.liga.n}</div>`;
+  const lg = LIGAS[L.idx];
+  if (L.idx === ULTIMA){
+    return `<div class="liga" style="--lc:${lg.c}">${aviso}<div class="liga-ico">${lg.i}</div><div class="liga-info">
+      <div class="liga-name">Liga ${lg.n}</div><div class="pts">Has llegado a lo más alto. Victorias totales: <b>${L.ganadas||0}</b></div></div></div>`;
   }
-  const pr = L.sig ? Math.max(0, Math.min(100, (L.media - L.liga.min)/(L.sig.min - L.liga.min)*100)) : 100;
-  return `<div class="liga" style="--lc:${L.liga.c}">${cambio}<div class="liga-ico">${L.liga.i}</div><div class="liga-info">
-      <div class="liga-name">Liga ${L.liga.n}</div>
-      <div class="pts">Media de tus últimos ${L.n} retos: <b>${L.media}</b> puntos</div>
-      <div class="lbar"><div class="lfill" style="width:${pr}%"></div></div>
-      <div class="pts" style="font-size:12px">${L.sig ? `Te faltan ${L.sig.min - L.media} puntos de media para ${L.sig.i} ${L.sig.n}` : '¡Estás en lo más alto!'}</div>
+  const req = LIGA_REQ[L.idx], sig = LIGAS[L.idx+1];
+  const pips = Array.from({length:req},(_,k)=>`<span class="pip ${k<L.balance?'on':''}"></span>`).join('');
+  const estado = L.promo
+    ? `<div class="liga-promo">🔥 Partida de ascenso a ${sig.i} ${sig.n} en tu próximo reto · jefe con +${Math.round((promoMult(L.idx)-1)*100)}% de vida</div>`
+    : `<div class="pts">Victorias para la partida de ascenso a ${sig.i} ${sig.n}: <b>${L.balance}/${req}</b></div>`;
+  return `<div class="liga" style="--lc:${lg.c}">${aviso}<div class="liga-ico">${lg.i}</div><div class="liga-info">
+      <div class="liga-name">Liga ${lg.n}</div>
+      <div class="pips">${pips}${L.promo?'<span class="pip promo">⚔️</span>':''}</div>
+      ${estado}
+      <div class="pts" style="font-size:12px">Derrotar al jefe suma 1, no derrotarlo resta 1.</div>
     </div></div>`;
+}
+// Si ayer empezaste el reto pero no llegaste a ver los resultados, se cuenta ahora (antes de fijar el jefe de hoy)
+async function ponerAlDiaLiga(){
+  const d = dayDiff(hoy()), L = ligaEstado(), reg = L.dias[d-1];
+  if (!reg || reg.hecho) return;
+  try {
+    const ay = await api('resultados_dia', {p_jugador:JUGADOR, p_dia:dateOfDay(d-1)});
+    const jug = ay.preguntas.filter(q=>q.resultado && q.resultado.estado && q.resultado.estado!=='pendiente');
+    if (jug.length === ay.preguntas.length && jug.length) ligaProcesar(dateOfDay(d-1), jug.reduce((a,q)=>a+(q.resultado.puntos||0),0));
+  } catch(e){}
 }
 
 /* ---------- menú ---------- */
@@ -1313,9 +1504,13 @@ async function renderHome(){
   const streak=(st.lastDay===d||st.lastDay===d-1)?st.streak:0;
   const btn=$('#heroBtn'), status=$('#heroStatus');
   $('#heroTag').textContent=`Reto #${numReto(hoy())} · ${new Date(hoy()+'T12:00:00').toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}`;
-  const jh = jefeDelDia(hoy());
-  $('#heroBoss').innerHTML = `<div class="hb-spr">${spriteSVG(jh)}</div><div><div class="hb-lbl">Jefe de hoy</div><div class="hb-name">${esc(jh.n)}</div><div class="hb-pv">❤️ ${jh.pv} PV · <span class="boss-dif">${estrellas(jh.pv)}</span></div></div>`;
-  $('#ligaBox').innerHTML = ligaHTML(ligaActual());
+  const pintarHeroe = () => {
+    const jh = jefeDelDia(hoy()), v = jefeVista(hoy());
+    $('#heroBoss').classList.toggle('promo', !!v.promo);
+    $('#heroBoss').innerHTML = `<div class="hb-spr">${spriteSVG(jh)}</div><div><div class="hb-lbl">${v.promo?'🔥 Partida de ascenso':'Jefe de hoy'}</div><div class="hb-name">${esc(jh.n)}</div><div class="hb-pv">❤️ ${v.pv} PV${v.promo?` <span class="hb-extra">(+${v.pv-v.base})</span>`:''} · <span class="boss-dif">${estrellas(v.pv)}</span></div></div>`;
+    $('#ligaBox').innerHTML = ligaHTML();
+  };
+  pintarHeroe();
   $('#demoBox').innerHTML = DEMO ? '<div class="demo-banner">🧪 Modo demo: la web no está conectada al servidor. Las preguntas son de prueba y los porcentajes son estimados.</div>' : '';
   btn.textContent='▶ Jugar el reto de hoy';
   status.innerHTML=`<span>Te quedan <b class="countdown">--:--:--</b> para jugarlo</span>`;
@@ -1331,7 +1526,7 @@ async function renderHome(){
     ]);
     const qs=r.preguntas, pts=qs.reduce((a,q)=>a+(done(q)?q.resultado.puntos||0:0),0);
     if (qs.length && qs.every(done)){
-      const dañoHoy = pts, pvHoy = jefeDelDia(hoy()).pv;
+      const dañoHoy = pts, pvHoy = jefeVista(hoy()).pv;
       $('#heroBoss').classList.toggle('ko', dañoHoy >= pvHoy);
       btn.textContent='🏆 Ver mis resultados';
       status.innerHTML=`<span>Hoy llevas <b>${pts}/${qs.length*100}</b> (provisional)</span><span>·</span><span>Siguiente en <b class="countdown">--:--:--</b></span>`;
@@ -1343,7 +1538,8 @@ async function renderHome(){
     if (ay && ay.preguntas.length){
       const jug = ay.preguntas.filter(q=>q.resultado && q.resultado.estado && q.resultado.estado!=='pendiente');
       const pa = jug.reduce((a,q)=>a+(q.resultado.puntos||0),0);
-      if (jug.length===ay.preguntas.length){ registrarDia(d-1, pa, true); $('#ligaBox').innerHTML = ligaHTML(ligaActual()); }
+      const L = ligaEstado();
+      if (jug.length===ay.preguntas.length && L.dias[d-1] && !L.dias[d-1].hecho){ ligaProcesar(dateOfDay(d-1), pa); pintarHeroe(); }
       $('#ydayBox').innerHTML = `<div class="yday">📅 ${jug.length ? `Ayer sacaste <b>${pa}/${ay.preguntas.length*100}</b> <span class="prov def">definitivo</span>` : 'Ayer no jugaste.'} <a class="btn ghost" href="#ayer">Ver respuestas de ayer</a></div>`;
     } else $('#ydayBox').innerHTML='';
     tickClock();
@@ -1468,10 +1664,13 @@ $('#btnStats').addEventListener('click',()=>{
   $('#statsBox').innerHTML=`<div><b>${st.played}</b><span>Jugados</span></div><div><b>${streak}</b><span>Racha</span></div>
     <div><b>${st.best}</b><span>Mejor</span></div><div><b>${avg}</b><span>Media</span></div>
     <p style="grid-column:1/-1;font-size:12px;color:var(--muted);margin-top:8px">Mejor y media se calculan con tus puntos al terminar cada reto.</p>
-    <div style="grid-column:1/-1;text-align:left">${ligaHTML(ligaActual())}</div>`;
+    <div style="grid-column:1/-1;text-align:left">${ligaHTML()}</div>`;
   openModal('#statsModal');
 });
 $('#tilePractice').addEventListener('click',()=>startPractice(null));
+const pintarSonido = () => { const b=$('#btnSonido'); b.textContent = Sonido.activo() ? '🔊' : '🔇'; b.title = Sonido.activo() ? 'Silenciar' : 'Activar sonido'; };
+$('#btnSonido').addEventListener('click', ()=>{ Sonido.alternar(); pintarSonido(); });
+pintarSonido();
 
 /* ---------- arranque ---------- */
 (async function boot(){

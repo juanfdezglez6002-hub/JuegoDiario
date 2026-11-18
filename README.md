@@ -16,7 +16,8 @@ Los puntos son provisionales durante el día y definitivos al día siguiente.
 ## Jefe del día y liga
 
 - **Jefe del día ⚔️**: cada día un jefe pixel-art distinto (el mismo para todos) con entre 200 y 320 PV. Cada respuesta es un ataque que hace tanto daño como puntos consigues; las épicas son golpes críticos y las legendarias, golpes legendarios. Si tu daño total supera su vida, lo derrotas.
-- **Liga 🏆**: de ⚙️ Hierro a 👑 Leyenda según la media de tus últimos 7 retos, con 3 retos de clasificación.
+- **Liga 🏆** (se guarda en cada dispositivo): 3 retos de clasificación y empiezas en ⚙️ Hierro. Derrotar al jefe suma una victoria y no derrotarlo resta una. Al llegar a las victorias que pide tu liga, tu siguiente reto es una **partida de ascenso** con el jefe reforzado (+15% de vida para salir de Hierro… hasta +45% para llegar a 👑 Leyenda). Si lo derrotas, asciendes.
+- **Sonido 🔊**: golpes distintos según la rareza, voz propia para cada tipo de enemigo y música de victoria, derrota y ascenso. Generado con Web Audio, sin archivos externos.
 
 ## Cómo está hecho
 
