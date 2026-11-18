@@ -13,6 +13,11 @@ Cada día salen 5 preguntas de juegos distintos, elegidos al azar. Tienes 30 seg
 
 Los puntos son provisionales durante el día y definitivos al día siguiente.
 
+## Jefe del día y liga
+
+- **Jefe del día ⚔️**: cada día un jefe pixel-art distinto (el mismo para todos) con entre 200 y 320 PV. Cada respuesta es un ataque que hace tanto daño como puntos consigues; las épicas son golpes críticos y las legendarias, golpes legendarios. Si tu daño total supera su vida, lo derrotas.
+- **Liga 🏆**: de ⚙️ Hierro a 👑 Leyenda según la media de tus últimos 7 retos, con 3 retos de clasificación.
+
 ## Cómo está hecho
 
 - `index.html`: toda la web en un solo archivo (HTML, CSS y JavaScript). No contiene las respuestas: las comprueba el servidor.

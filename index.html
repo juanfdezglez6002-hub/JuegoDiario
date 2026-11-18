@@ -200,6 +200,57 @@
   .yday b{color:var(--text)}
   .yday a{margin-left:auto}
   @media (max-width:480px){.answers.cols{grid-template-columns:1fr}}
+  /* --- jefe del día --- */
+  .boss{display:flex;align-items:center;gap:12px;background:linear-gradient(90deg,#24143f,#1a1d38);border:1px solid #3b2d6b;border-radius:16px;padding:10px 12px;margin:2px 0 12px;position:relative}
+  .boss-spr{width:56px;height:56px;flex:none;position:relative;filter:drop-shadow(0 3px 0 #0006)}
+  .boss-spr svg{width:100%;height:100%;display:block}
+  .boss-info{flex:1;min-width:0}
+  .boss-name{font-weight:700;font-size:14px;display:flex;gap:6px 8px;align-items:center;flex-wrap:wrap}
+  .boss-tag{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#ffd277;background:#3a2708;padding:2px 7px;border-radius:99px}
+  .boss-dif{font-size:11px;color:#ffd277;letter-spacing:1px}
+  .hpbar{position:relative;height:16px;background:#0f1124;border:1px solid #5a2030;border-radius:99px;overflow:hidden;margin-top:6px}
+  .hpfill{height:100%;background:linear-gradient(90deg,#ef4444,#f97316);transition:width .8s cubic-bezier(.2,.8,.2,1)}
+  .hptxt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;text-shadow:0 1px 2px #000;font-variant-numeric:tabular-nums}
+  .boss.hurt .boss-spr{animation:hurt .5s}
+  @keyframes hurt{0%,100%{transform:none;filter:none}15%{transform:translateX(-7px);filter:brightness(3) saturate(0)}35%{transform:translateX(7px)}55%{transform:translateX(-4px);filter:brightness(2)}75%{transform:translateX(3px)}}
+  .boss.taunt .boss-spr{animation:taunt .7s}
+  @keyframes taunt{0%,100%{transform:none}25%{transform:translateY(-9px) scale(1.06)}50%{transform:none}75%{transform:translateY(-5px)}}
+  .dmg{position:absolute;left:52px;top:-8px;font-family:'Bungee',sans-serif;font-size:20px;color:#fff;text-shadow:0 2px 0 #000;animation:dmg 1.5s ease-out forwards;pointer-events:none;white-space:nowrap;z-index:3}
+  .dmg.crit{font-size:22px;color:#e0b3ff;text-shadow:0 0 10px #a855f7,0 2px 0 #000}
+  .dmg.leg{font-size:22px;color:#ffd277;text-shadow:0 0 14px #f5a524,0 2px 0 #000}
+  .dmg.miss{color:#ff8a8a;font-size:18px}
+  @keyframes dmg{0%{transform:translateY(12px) scale(.5);opacity:0}15%{transform:translateY(-4px) scale(1.15);opacity:1}70%{opacity:1}100%{transform:translateY(-30px) scale(1);opacity:0}}
+  .boss.ko .boss-spr svg{filter:grayscale(1) brightness(.55);transform:rotate(-14deg) translateY(4px);transition:all .4s}
+  .ko-tag{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bungee',sans-serif;font-size:18px;color:#ffd277;text-shadow:0 2px 0 #000,0 0 10px #f5a524;animation:pop .4s cubic-bezier(.2,1.6,.4,1)}
+  .boss.big{flex-direction:column;text-align:center;padding:18px 16px 14px;margin:0 0 6px}
+  .boss.big .boss-spr{width:112px;height:112px}
+  .boss.big .boss-info{width:100%}
+  .boss.big .boss-name{justify-content:center;font-size:16px}
+  .boss.big .ko-tag{font-size:30px}
+  .boss-out{font-family:'Bungee',sans-serif;font-size:24px;margin-top:10px}
+  .boss-out.win{color:#ffd277;text-shadow:0 0 18px #f5a52488}
+  .boss-out.close{color:#c4b5fd}
+  .boss-out.lose{color:#ff9a9a}
+  .score.sm{font-size:34px;margin-top:14px}
+  .score.sm small{font-size:15px}
+  .hero-boss{display:flex;align-items:center;gap:12px;margin:0 0 16px;padding:10px 12px;background:#0c0d1a66;border:1px solid #ffffff14;border-radius:14px;max-width:360px}
+  .hb-spr{width:52px;height:52px;flex:none;animation:flota 2.6s ease-in-out infinite}
+  .hb-spr svg{width:100%;height:100%;display:block}
+  @keyframes flota{50%{transform:translateY(-4px)}}
+  .hero-boss.ko .hb-spr svg{filter:grayscale(1) brightness(.6);transform:rotate(-14deg)}
+  .hb-lbl{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:#ffd277;font-weight:700}
+  .hb-name{font-weight:700;font-size:15px}
+  .hb-pv{font-size:12.5px;color:#cfd3ff}
+  /* --- liga --- */
+  .liga{--lc:#7c5cff;display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:12px;padding:12px 14px;border-radius:14px;background:#141733;border:1px solid var(--line);border-left:4px solid var(--lc);text-align:left}
+  .liga-ico{font-size:30px;line-height:1}
+  .liga-info{flex:1;min-width:0}
+  .liga-name{font-weight:700;color:var(--lc)}
+  .lbar{height:7px;border-radius:99px;background:#0f1124;overflow:hidden;margin:6px 0 4px}
+  .lfill{height:100%;background:var(--lc);border-radius:99px}
+  .liga-up,.liga-down{flex-basis:100%;font-weight:700;font-size:14px}
+  .liga-up{color:#7ee2a8} .liga-down{color:#ff9a9a}
+  @media (prefers-reduced-motion:reduce){.hb-spr,.boss.hurt .boss-spr,.boss.taunt .boss-spr,.dmg{animation:none}}
   /* --- huecos de anuncios --- */
   .ad-slot{margin:22px 0 0}
   .ad-slot:empty,.ad-slot[hidden]{display:none}
@@ -253,11 +304,13 @@
   <section class="view" id="v-inicio">
     <div class="hero">
       <div class="tag" id="heroTag">Reto de hoy</div>
-      <h2>¿Conoces lo que nadie más conoce?</h2>
-      <p>5 preguntas de videojuegos. Cualquier respuesta válida suma, pero las raras valen mucho más.</p>
+      <h2>¿Podrás derrotar al jefe de hoy?</h2>
+      <p>5 preguntas de videojuegos. Cada respuesta es un ataque: cuanto menos gente diga lo mismo que tú, más daño haces.</p>
+      <div class="hero-boss" id="heroBoss"></div>
       <a class="btn gold" href="#jugar" id="heroBtn">▶ Jugar el reto de hoy</a>
       <div class="status" id="heroStatus"></div>
     </div>
+    <div id="ligaBox"></div>
     <div id="ydayBox"></div>
     <div id="demoBox"></div>
 
@@ -279,6 +332,7 @@
   <!-- ============ PARTIDA (diaria o práctica) ============ -->
   <section class="view" id="v-jugar">
     <a class="back" href="#inicio">← Menú</a>
+    <div id="bossBox"></div>
     <div class="pills" id="pills"></div>
     <div id="main"></div>
     <!-- Solo aparece en la pantalla de resultados: nunca durante una pregunta, para evitar clics sin querer -->
@@ -310,6 +364,10 @@
         <li>Lo dice el 0,3% o menos → <b>100 puntos</b></li>
       </ul>
       <p>La puntuación máxima de un día es 500.</p>
+      <h2>El jefe del día ⚔️</h2>
+      <p>Cada día aparece un jefe distinto, el mismo para todo el mundo, con entre 200 y 320 puntos de vida (cuantas más estrellas ★, más duro). <b>Cada respuesta es un ataque</b> y hace tanto daño como puntos consigues. Las respuestas épicas son <b>golpes críticos</b> y las legendarias, <b>golpes legendarios</b>. Si al final del reto tu daño total supera su vida, lo derrotas. Como los puntos son provisionales hasta el día siguiente, el resultado contra el jefe también lo es.</p>
+      <h2>Tu liga 🏆</h2>
+      <p>Según la media de puntos de tus últimos 7 retos estás en una liga: ⚙️ Hierro, 🥉 Bronce, 🥈 Plata, 🥇 Oro, 💠 Platino, 💎 Diamante, 🔮 Maestro o 👑 Leyenda. Los 3 primeros retos son de clasificación. Juega cada día para subir… y para no bajar.</p>
       <h2>Los niveles de rareza</h2>
       <div class="tier-list">
         <div class="b-c">Común · 15% o más</div>
@@ -356,6 +414,8 @@
       <details><summary>¿Puedo jugar más de una vez al día?</summary><p>El reto diario solo se puede jugar una vez, pero el modo práctica es ilimitado. Desde la sección Juegos también puedes practicar las preguntas de un juego concreto.</p></details>
       <details><summary>¿Cómo funciona la racha?</summary><p>Cada día que completas el reto diario tu racha sube en uno. Si un día no juegas, vuelve a empezar. Las partidas de práctica no cuentan.</p></details>
       <details><summary>¿Vais a añadir más juegos?</summary><p>Sí. La lista de juegos y preguntas irá creciendo. Si echas en falta alguno, pronto habilitaremos una forma de proponerlo.</p></details>
+      <details><summary>¿Qué es el jefe del día?</summary><p>Es el rival de cada reto. Tiene entre 200 y 320 puntos de vida y tus respuestas le hacen daño: cuantos más puntos sacas en una pregunta, más fuerte es el golpe. Si al terminar las 5 preguntas has hecho más daño que su vida, lo derrotas. Cada día es un jefe distinto, y es el mismo para todos, así que puedes comparar con tus amigos quién lo ha tumbado.</p></details>
+      <details><summary>¿Cómo funciona la liga?</summary><p>Tu liga depende de la media de puntos de tus últimos 7 retos diarios. Al principio juegas 3 retos de clasificación y luego entras en una liga, desde Hierro hasta Leyenda. Si tu media sube, subes de liga; si baja, puedes bajar. Se guarda en tu navegador, igual que tu racha. Las partidas de práctica no cuentan.</p></details>
       <details><summary>¿Puedo jugar el reto varias veces?</summary><p>No. Cada pregunta del reto diario solo se juega una vez. Desde una misma conexión pueden jugar varias personas (por ejemplo, en una casa o un instituto), pero con un límite, y si varias personas de la misma conexión dan la misma respuesta cuenta como un solo voto. Así nadie puede inflar los porcentajes.</p></details>
       <details><summary>¿Tenéis relación con los juegos que aparecen?</summary><p>No. LEGENDARIO es un proyecto independiente hecho por fans y no está afiliado, patrocinado ni respaldado por ninguna de las compañías propietarias de los juegos mencionados. Todas las marcas pertenecen a sus respectivos dueños y solo se citan para identificar los juegos.</p></details>
       <details><summary>¿Por qué hay anuncios?</summary><p>Los anuncios permiten que el juego siga siendo gratis para todo el mundo y que podamos seguir añadiendo preguntas. Intentamos que no molesten: nunca aparecen en mitad de una pregunta.</p></details>
@@ -671,13 +731,107 @@ const DemoServer = (() => {
 })();
 
 
+/* =========================================================
+   JEFE DEL DÍA y LIGA
+   Sprites originales de 16×16. Leyenda de cada carácter:
+   . vacío · 1 color principal · 2 sombra · 3 brillo · e ojo · p pupila · m boca/oscuro
+   ========================================================= */
+const SPRITES = {
+  slime: [
+    "................","................","................","......1111......",
+    "....11111111....","...1131111111...","..113311111111..","..131111111111..",
+    ".11eep1111eep11.",".11eep1111eep11.",".11111111111111.",".1111mmmmmm1111.",
+    ".11111111111111.","..222222222222..","...2222222222...","................"],
+  golem: [
+    "................","....22222222....","...2111111112...","...21ee11ee12...",
+    "...21pe11pe12...","...2111111112...","...211mmmm112...","....22222222....",
+    ".22211111111222.","2111211111121112","2111211331121112","2112211111122112",
+    "222.21111112.222","....21122112....","....222..222....","................"],
+  ghost: [
+    "................",".....111111.....","....11111111....","...1111111111...",
+    "..111111111111..","..11ee1111ee11..","..11pp1111pp11..","..111111111111..",
+    "..1111mmmm1111..","..111111111111..","..113111111111..","..111111111111..",
+    "..111111111111..","..11.1111.1111..","..1...11...11...","................"],
+  robot: [
+    ".......3........",".......1........","....22222222....","...2111111112...",
+    "...21eee1eee2...","...21epe1epe2...","...2111111112...","...21mmmmmm12...",
+    "....22222222....","..222111111222..",".21121133112112.",".21121111112112.",
+    ".22.21111112.22.","....21111112....","....222..222....","................"],
+  dragon: [
+    "..2..........2..","..22........22..","...2211111122...","...1111111111...",
+    "..111111111111..","..11ee1111ee11..","..11pe1111pe11..","..111111111111..",
+    "...1111111111...","...1133333311...","...13m3333m31...","...1333333331...",
+    "...1m3m33m3m1...","....11111111....",".....222222.....","................"],
+  skull: [
+    "................","................",".....222222.....","....23333332....",
+    "...2333333332...","...2333333332...","...23mm33mm32...","...23me33me32...",
+    "...2333333332...","...2333mm3332...","....23333332....","....2m3m3m32....",
+    ".....222222.....","................","................","................"],
+};
+const JEFES = [
+  {n:'Slime Rey',                     s:'slime',  c:{1:'#4ade80',2:'#15803d',3:'#bbf7d0',e:'#fff',p:'#111',m:'#14532d'}},
+  {n:'Slime Glitch',                  s:'slime',  c:{1:'#e879f9',2:'#a21caf',3:'#fae8ff',e:'#fff',p:'#111',m:'#701a75'}},
+  {n:'Gólem de Bloques',              s:'golem',  c:{1:'#9ca3af',2:'#4b5563',3:'#e5e7eb',e:'#fde047',p:'#111',m:'#1f2937'}},
+  {n:'Gólem de Lava',                 s:'golem',  c:{1:'#f97316',2:'#7c2d12',3:'#fde68a',e:'#fff',p:'#7f1d1d',m:'#450a0a'}},
+  {n:'Espectro del Respawn',          s:'ghost',  c:{1:'#bfdbfe',2:'#60a5fa',3:'#ffffff',e:'#1e3a8a',p:'#1e3a8a',m:'#1e3a8a'}},
+  {n:'Fantasma del Lag',              s:'ghost',  c:{1:'#c4b5fd',2:'#7c3aed',3:'#ede9fe',e:'#2e1065',p:'#f43f5e',m:'#2e1065'}},
+  {n:'Robot Speedrunner',             s:'robot',  c:{1:'#22d3ee',2:'#0e7490',3:'#f43f5e',e:'#fff',p:'#111',m:'#164e63'}},
+  {n:'Mecha Buffering',               s:'robot',  c:{1:'#facc15',2:'#a16207',3:'#22c55e',e:'#fff',p:'#111',m:'#422006'}},
+  {n:'Dragón de Píxeles',             s:'dragon', c:{1:'#ef4444',2:'#7f1d1d',3:'#fca5a5',e:'#fde047',p:'#111',m:'#450a0a'}},
+  {n:'Wyvern Abisal',                 s:'dragon', c:{1:'#14b8a6',2:'#134e4a',3:'#99f6e4',e:'#fff',p:'#7c3aed',m:'#042f2e'}},
+  {n:'Calavera del Game Over',        s:'skull',  c:{2:'#78716c',3:'#f5f5f4',e:'#ef4444',m:'#1c1917'}},
+  {n:'Liche de la Partida sin Guardar',s:'skull', c:{2:'#166534',3:'#d9f99d',e:'#22c55e',m:'#052e16'}},
+];
+const MUNECO = {n:'Muñeco de entrenamiento', s:'golem', c:{1:'#d6a36a',2:'#7c4a1e',3:'#f3d7b0',e:'#111',p:'#111',m:'#5a3412'}, pv:250, practica:true};
+
+function spriteSVG(j){
+  const g = SPRITES[j.s]; let r = '';
+  g.forEach((fila,y)=>[...fila].forEach((ch,x)=>{ const col = j.c[ch]; if (ch!=='.' && col) r += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${col}"/>`; }));
+  return `<svg viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+}
+// Mismo jefe para todo el mundo cada día. Vida entre 200 y 320 PV.
+function jefeDelDia(dia){
+  const d = dayDiff(dia);
+  return {...JEFES[hash('jefe-'+d) % JEFES.length], pv: 200 + 20*(hash('pv-'+d) % 7)};
+}
+const estrellas = pv => '★'.repeat(1 + Math.floor((pv-200)/40)) + '☆'.repeat(3 - Math.floor((pv-200)/40));
+
+/* ---------- LIGA ----------
+   Rango según la media de tus últimos 7 retos jugados (con 3 de clasificación). */
+const LIGAS = [
+  {n:'Hierro',   min:0,   i:'⚙️', c:'#9aa0ab'},
+  {n:'Bronce',   min:80,  i:'🥉', c:'#d08a4c'},
+  {n:'Plata',    min:120, i:'🥈', c:'#cbd5e1'},
+  {n:'Oro',      min:160, i:'🥇', c:'#f5c542'},
+  {n:'Platino',  min:200, i:'💠', c:'#5eead4'},
+  {n:'Diamante', min:240, i:'💎', c:'#7cb8ff'},
+  {n:'Maestro',  min:280, i:'🔮', c:'#c084fc'},
+  {n:'Leyenda',  min:330, i:'👑', c:'#ff9d2e'},
+];
+const LIGA_RETOS = 7, LIGA_CLASIF = 3;
+function historial(){ return store.get('legendario-historial', {}); }
+function registrarDia(d, p, definitivo){
+  const h = historial();
+  if (!h[d] || definitivo || !h[d].def){ h[d] = {p, def:!!definitivo}; store.set('legendario-historial', h); }
+}
+function ligaActual(){
+  const ult = Object.entries(historial()).map(([d,v])=>({d:+d, p:v.p})).sort((a,b)=>b.d-a.d).slice(0, LIGA_RETOS);
+  if (ult.length < LIGA_CLASIF) return {clasif:ult.length};
+  const media = Math.round(ult.reduce((a,x)=>a+x.p,0)/ult.length);
+  let k = 0; LIGAS.forEach((l,i)=>{ if (media >= l.min) k = i; });
+  return {liga:LIGAS[k], idx:k, media, sig:LIGAS[k+1]||null, n:ult.length};
+}
+
+
 /* ---------- utilidades ---------- */
-const DEMO = !CONFIG.SUPABASE_URL || !CONFIG.SUPABASE_KEY;
+// Modo demo: sin servidor configurado, o forzado con ?demo en la dirección (para probar sin tocar datos reales)
+const DEMO = !CONFIG.SUPABASE_URL || !CONFIG.SUPABASE_KEY || /[?&]demo\b/.test(location.search);
+const PREFIJO = /[?&]demo\b/.test(location.search) ? 'demo-' : '';
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const store = {
-  get(k,def){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):def; }catch(e){ return def; } },
-  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+  get(k,def){ try{ const v=localStorage.getItem(PREFIJO+k); return v?JSON.parse(v):def; }catch(e){ return def; } },
+  set(k,v){ try{ localStorage.setItem(PREFIJO+k,JSON.stringify(v)); }catch(e){} }
 };
 const pctTxt = p => (p==null ? '–' : String(Math.round(p*10)/10).replace('.',',')) + '%';
 const secTxt = s => String(s ?? 0).replace('.',',') + ' s';
@@ -771,6 +925,52 @@ function showError(err, retry){
   $('#retry').addEventListener('click', retry);
 }
 
+/* ---------- panel del jefe ---------- */
+const jefeDe = () => S.modo==='practica' ? MUNECO : jefeDelDia(S.dia);
+function bossHTML(j, pvAntes, pvAhora, opts={}){
+  const pct = v => Math.max(0, Math.min(100, v/j.pv*100));
+  const ko = pvAhora <= 0;
+  return `<div class="boss ${opts.big?'big':''} ${ko?'ko':''}" id="boss">
+    <div class="boss-spr">${spriteSVG(j)}${ko?'<span class="ko-tag">K.O.</span>':''}</div>
+    <div class="boss-info">
+      <div class="boss-name">${esc(j.n)} <span class="boss-tag">${j.practica?'Entrenamiento':'Jefe del día'}</span>${!j.practica?`<span class="boss-dif" title="Dificultad">${estrellas(j.pv)}</span>`:''}</div>
+      <div class="hpbar"><div class="hpfill" id="hpfill" style="width:${pct(pvAntes)}%" data-fin="${pct(pvAhora)}"></div><span class="hptxt" id="hptxt">${Math.max(0,pvAntes)} / ${j.pv} PV</span></div>
+    </div>
+  </div>`;
+}
+function dañoHecho(hasta){ return S.preguntas.slice(0, hasta).reduce((a,q)=>a+(done(q)?(q.resultado.puntos||0):0),0); }
+function pintarJefe(golpe){
+  const j = jefeDe(), box = $('#bossBox'); if (!box) return;
+  const i = S.cur, antes = j.pv - dañoHecho(golpe ? i : i), ahora = j.pv - dañoHecho(golpe ? i+1 : i);
+  box.innerHTML = bossHTML(j, antes, ahora);
+  if (!golpe) return;
+  const r = S.preguntas[i].resultado || {}, el = $('#boss');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    const f=$('#hpfill'); if (f) f.style.width = f.dataset.fin+'%';
+    const t=$('#hptxt'); if (t) t.textContent = `${Math.max(0,ahora)} / ${j.pv} PV`;
+  }));
+  const d = document.createElement('span');
+  if (r.estado==='ok'){
+    const crit = r.nivel==='l' ? 'leg' : r.nivel==='e' ? 'crit' : '';
+    d.className = 'dmg '+crit;
+    d.textContent = (r.nivel==='l' ? '¡GOLPE LEGENDARIO! ' : r.nivel==='e' ? '¡CRÍTICO! ' : '') + '−' + (r.puntos||0);
+    el.classList.add('hurt');
+  } else {
+    d.className = 'dmg miss'; d.textContent = r.estado==='tiempo' ? '¡Demasiado lento!' : '¡Fallo!';
+    el.classList.add('taunt');
+  }
+  el.appendChild(d);
+  if (ahora <= 0 && antes > 0){ setTimeout(()=>{ el.classList.add('ko'); el.querySelector('.boss-spr').insertAdjacentHTML('beforeend','<span class="ko-tag">K.O.</span>'); }, 650); }
+}
+function bossResultHTML(){
+  const j = jefeDe(), daño = total(), resto = j.pv - daño;
+  let titulo, clase, sub;
+  if (resto <= 0){ titulo = '¡DERROTADO!'; clase='win'; sub = daño > j.pv ? `${daño} de daño · ${daño-j.pv} de daño extra` : `${daño} de daño`; }
+  else if (daño >= j.pv*0.75){ titulo = '¡POR LOS PELOS!'; clase='close'; sub = `Se ha escapado con ${resto} PV`; }
+  else { titulo = 'HA ESCAPADO'; clase='lose'; sub = `Le quedaban ${resto} de ${j.pv} PV`; }
+  return {html: bossHTML(j, Math.max(0,resto), Math.max(0,resto), {big:true}) + `<div class="boss-out ${clase}">${titulo}</div><div class="pts">${sub}</div>`, titulo, resto, daño, j};
+}
+
 function renderPills(){
   $('#pills').innerHTML = S.preguntas.map((q,i)=>{
     let c='pill';
@@ -830,6 +1030,7 @@ async function renderRound(){
     deadline = q._deadline;
   }
   q._tried = q._tried || [];
+  pintarJefe(false);
 
   $('#main').innerHTML = `${tagHTML()}
     <div class="card" id="card">
@@ -936,7 +1137,7 @@ async function submit(val){
 function renderReveal(){
   stopTimer(); busy=false;
   const i=S.cur, q=S.preguntas[i], r=q.resultado, g=gameById(q.juego_id), last=i===S.preguntas.length-1;
-  renderPills();
+  renderPills(); pintarJefe(true);
   let inner;
   if (r.estado==='ok'){
     const t=TIERS[r.nivel]||TIERS.c;
@@ -976,7 +1177,11 @@ function rankName(p,max){
 const emojiRow = () => S.preguntas.map(q=>done(q)&&q.resultado.nivel?TIERS[q.resultado.nivel].emoji:'⬛').join('');
 function shareText(definitivo){
   const head = S.modo==='practica' ? `LEGENDARIO (${practiceLabel()})` : `LEGENDARIO #${numReto(S.dia)}`;
-  return `${head} · ${total()}/${maxScore()}${S.modo==='practica'||definitivo?'':' (provisional)'}\n${emojiRow()}\n${rankName(total(),maxScore())}`;
+  const b = bossResultHTML();
+  const est = b.resto<=0 ? `¡DERROTADO! ${b.daño} de daño` : `se escapó con ${b.resto}/${b.j.pv} PV`;
+  const lg = S.modo==='diario' ? ligaActual() : null;
+  const liga = lg && lg.liga ? `\n${lg.liga.i} Liga ${lg.liga.n}` : '';
+  return `${head}${S.modo==='practica'||definitivo?'':' (provisional)'}\n⚔️ ${b.j.n}: ${est}\n${emojiRow()}${liga}`;
 }
 function saveStats(){
   const st=store.get('legendario-stats',{played:0,streak:0,maxStreak:0,best:0,sum:0,lastDay:-1});
@@ -1004,7 +1209,7 @@ async function showResults(diaPasado){
     }
   } catch(e){ return showError(e, ()=>showResults(diaPasado)); }
   S.preguntas = data; S.cur = data.length-1;
-  renderPills();
+  renderPills(); $('#bossBox').innerHTML = '';
   const p=total(), jugado = data.some(done);
   const tag = S.modo==='practica' ? '' : definitivo ? '<span class="prov def">definitivo</span>' : '<span class="prov">provisional</span>';
   const rows = data.map(q=>{
@@ -1028,14 +1233,21 @@ async function showResults(diaPasado){
       </div></details>`;
   }).join('');
   const title = S.modo==='ayer' ? `Reto de ayer (#${numReto(S.dia)})` : '';
+  const jefeBloque = jugado || S.modo!=='ayer' ? bossResultHTML().html : '';
+  let ligaBloque = '';
+  if (S.modo==='diario' && data.every(done)){
+    const antes = ligaActual(); registrarDia(dayDiff(S.dia), p, definitivo); const ahora = ligaActual();
+    ligaBloque = ligaHTML(ahora, antes);
+  }
   $('#main').innerHTML = `
     <div class="card">${tagHTML()}
       ${title?`<div class="sum-game" style="text-align:center">${esc(title)}</div>`:''}
       <div class="result-top">
         ${S.modo==='ayer' && !jugado ? '<div class="question">Ayer no jugaste el reto</div><div class="meta">Pero puedes ver todas las respuestas y sus porcentajes.</div>' : `
-        <div class="score">${p}<small>/${maxScore()}</small></div>
-        <div class="rank">${rankName(p,maxScore())} ${tag}</div>
+        ${jefeBloque}
+        <div class="score sm">${p}<small> puntos</small> ${tag}</div>
         <div class="emojis">${emojiRow()}</div>
+        ${ligaBloque}
         <div class="share-row">
           <button class="btn" id="share">Copiar resultado 📋</button>
           ${S.modo!=='ayer'?`<button class="btn ghost" id="again">${S.modo==='practica'?'Otra partida de práctica':'Partida de práctica'}</button>`:''}
@@ -1067,6 +1279,28 @@ function startPractice(gid){
   else { showView('jugar'); startPracticeFlow(); scrollTo(0,0); }
 }
 
+/* ---------- liga ---------- */
+function ligaHTML(L, antes){
+  if (L.clasif !== undefined){
+    return `<div class="liga"><div class="liga-ico">🎯</div><div class="liga-info"><div class="liga-name">Partidas de clasificación</div>
+      <div class="pts">Juega ${LIGA_CLASIF - L.clasif} reto${LIGA_CLASIF-L.clasif===1?'':'s'} más para entrar en una liga (${L.clasif}/${LIGA_CLASIF})</div>
+      <div class="lbar"><div class="lfill" style="width:${L.clasif/LIGA_CLASIF*100}%"></div></div></div></div>`;
+  }
+  let cambio = '';
+  if (antes){
+    if (antes.clasif !== undefined) cambio = `<div class="liga-up">🎉 ¡Clasificado! Entras en ${L.liga.n}</div>`;
+    else if (L.idx > antes.idx) cambio = `<div class="liga-up">⬆️ ¡Subes a ${L.liga.n}!</div>`;
+    else if (L.idx < antes.idx) cambio = `<div class="liga-down">⬇️ Bajas a ${L.liga.n}</div>`;
+  }
+  const pr = L.sig ? Math.max(0, Math.min(100, (L.media - L.liga.min)/(L.sig.min - L.liga.min)*100)) : 100;
+  return `<div class="liga" style="--lc:${L.liga.c}">${cambio}<div class="liga-ico">${L.liga.i}</div><div class="liga-info">
+      <div class="liga-name">Liga ${L.liga.n}</div>
+      <div class="pts">Media de tus últimos ${L.n} retos: <b>${L.media}</b> puntos</div>
+      <div class="lbar"><div class="lfill" style="width:${pr}%"></div></div>
+      <div class="pts" style="font-size:12px">${L.sig ? `Te faltan ${L.sig.min - L.media} puntos de media para ${L.sig.i} ${L.sig.n}` : '¡Estás en lo más alto!'}</div>
+    </div></div>`;
+}
+
 /* ---------- menú ---------- */
 async function renderHome(){
   const st=store.get('legendario-stats',{streak:0,lastDay:-1});
@@ -1074,6 +1308,9 @@ async function renderHome(){
   const streak=(st.lastDay===d||st.lastDay===d-1)?st.streak:0;
   const btn=$('#heroBtn'), status=$('#heroStatus');
   $('#heroTag').textContent=`Reto #${numReto(hoy())} · ${new Date(hoy()+'T12:00:00').toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'})}`;
+  const jh = jefeDelDia(hoy());
+  $('#heroBoss').innerHTML = `<div class="hb-spr">${spriteSVG(jh)}</div><div><div class="hb-lbl">Jefe de hoy</div><div class="hb-name">${esc(jh.n)}</div><div class="hb-pv">❤️ ${jh.pv} PV · <span class="boss-dif">${estrellas(jh.pv)}</span></div></div>`;
+  $('#ligaBox').innerHTML = ligaHTML(ligaActual());
   $('#demoBox').innerHTML = DEMO ? '<div class="demo-banner">🧪 Modo demo: la web no está conectada al servidor. Las preguntas son de prueba y los porcentajes son estimados.</div>' : '';
   btn.textContent='▶ Jugar el reto de hoy';
   status.innerHTML=`<span>Te quedan <b class="countdown">--:--:--</b> para jugarlo</span>`;
@@ -1089,6 +1326,8 @@ async function renderHome(){
     ]);
     const qs=r.preguntas, pts=qs.reduce((a,q)=>a+(done(q)?q.resultado.puntos||0:0),0);
     if (qs.length && qs.every(done)){
+      const dañoHoy = pts, pvHoy = jefeDelDia(hoy()).pv;
+      $('#heroBoss').classList.toggle('ko', dañoHoy >= pvHoy);
       btn.textContent='🏆 Ver mis resultados';
       status.innerHTML=`<span>Hoy llevas <b>${pts}/${qs.length*100}</b> (provisional)</span><span>·</span><span>Siguiente en <b class="countdown">--:--:--</b></span>`;
     } else if (qs.some(q=>q.resultado)){
@@ -1099,6 +1338,7 @@ async function renderHome(){
     if (ay && ay.preguntas.length){
       const jug = ay.preguntas.filter(q=>q.resultado && q.resultado.estado && q.resultado.estado!=='pendiente');
       const pa = jug.reduce((a,q)=>a+(q.resultado.puntos||0),0);
+      if (jug.length===ay.preguntas.length){ registrarDia(d-1, pa, true); $('#ligaBox').innerHTML = ligaHTML(ligaActual()); }
       $('#ydayBox').innerHTML = `<div class="yday">📅 ${jug.length ? `Ayer sacaste <b>${pa}/${ay.preguntas.length*100}</b> <span class="prov def">definitivo</span>` : 'Ayer no jugaste.'} <a class="btn ghost" href="#ayer">Ver respuestas de ayer</a></div>`;
     } else $('#ydayBox').innerHTML='';
     tickClock();
@@ -1222,7 +1462,8 @@ $('#btnStats').addEventListener('click',()=>{
   const avg=st.played?Math.round(st.sum/st.played):0;
   $('#statsBox').innerHTML=`<div><b>${st.played}</b><span>Jugados</span></div><div><b>${streak}</b><span>Racha</span></div>
     <div><b>${st.best}</b><span>Mejor</span></div><div><b>${avg}</b><span>Media</span></div>
-    <p style="grid-column:1/-1;font-size:12px;color:var(--muted);margin-top:8px">Mejor y media se calculan con tus puntos al terminar cada reto.</p>`;
+    <p style="grid-column:1/-1;font-size:12px;color:var(--muted);margin-top:8px">Mejor y media se calculan con tus puntos al terminar cada reto.</p>
+    <div style="grid-column:1/-1;text-align:left">${ligaHTML(ligaActual())}</div>`;
   openModal('#statsModal');
 });
 $('#tilePractice').addEventListener('click',()=>startPractice(null));
