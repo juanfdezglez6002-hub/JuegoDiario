@@ -1122,7 +1122,9 @@ function cargarAdSense(){
 }
 function rellenarAnuncios(){
   document.querySelectorAll('.ad-slot:not([data-lleno])').forEach(el=>{
-    if (el.hidden || !el.offsetParent) return;          // AdSense necesita que el hueco sea visible
+    if (el.hidden) return;
+    const sec = el.closest('section.view');
+    if (sec && !sec.classList.contains('on')) return;   // AdSense necesita que el hueco esté en la pantalla visible
     const h = el.dataset.hueco, slot = ADS.HUECOS && ADS.HUECOS[h];
     if (ADS.CLIENTE && slot){
       cargarAdSense();
