@@ -15,6 +15,7 @@
     --c:#a3acbf; --r:#3b82f6; --e:#a855f7; --l:#f5a524; --bad:#ef4444; --ok:#22c55e;
   }
   *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   html,body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',system-ui,sans-serif;min-height:100%}
   body{background:radial-gradient(1200px 600px at 50% -200px,#26205a 0%,transparent 70%),var(--bg);padding-bottom:30px}
   button{font:inherit;cursor:pointer;border:none}
@@ -212,6 +213,27 @@
   footer a{color:#8a90c4;text-decoration:none}
   footer a:hover{color:var(--text)}
   @media (max-width:480px){.question{font-size:19px}.score{font-size:46px}.btn{padding:14px}.hero h2{font-size:22px}}
+  /* --- móvil: campo de respuesta a todo el ancho y botón debajo --- */
+  @media (max-width:520px){
+    #form{flex-direction:column}
+    #form .btn{width:100%}
+    .sugg li{padding:12px 14px}
+    .result-top .msg{min-height:0}
+  }
+  /* --- móviles pequeños (iPhone SE y similares) --- */
+  @media (max-width:380px){
+    .wrap{padding:0 12px}
+    .logo{font-size:22px}
+    .icon-btn{width:36px;height:36px;font-size:16px}
+    .hero{padding:18px}
+    .card,.prose{padding:16px}
+    .menu-grid{gap:8px}
+    .tile{padding:13px}
+    .tile span{font-size:12.5px}
+    .question{font-size:18px}
+    .badge{font-size:24px;padding:10px 16px}
+    .stats b{font-size:22px}
+  }
 </style>
 </head>
 <body>
