@@ -19,7 +19,10 @@
   html,body{overflow-x:hidden}
   @supports (overflow:clip){html,body{overflow-x:clip}}
   html,body{background:var(--bg);color:var(--text);font-family:'Space Grotesk',system-ui,sans-serif;min-height:100%}
-  body{background:radial-gradient(1200px 600px at 50% -200px,#26205a 0%,transparent 70%),var(--bg);padding-bottom:30px}
+  body{background:transparent!important;padding-bottom:30px;position:relative}
+  html{background:radial-gradient(1200px 600px at 50% -200px,#26205a 0%,transparent 70%),var(--bg)}
+  /* --- fondo animado (pixel-art) --- */
+  #fondo{position:fixed;inset:0;width:100vw;height:100vh;z-index:-1;image-rendering:pixelated;image-rendering:crisp-edges;pointer-events:none;display:block}
   button{font:inherit;cursor:pointer;border:none}
   a{color:#b9a8ff}
   .wrap{max-width:660px;margin:0 auto;padding:0 16px}
@@ -301,6 +304,7 @@
 </style>
 </head>
 <body>
+<canvas id="fondo" aria-hidden="true"></canvas>
 <div class="wrap">
   <header>
     <div>
@@ -984,6 +988,180 @@ const Sonido = (() => {
     activo: () => activo,
     alternar(){ activo = !activo; try { localStorage.setItem('legendario-sonido', activo ? 'on' : 'off'); } catch(e){} if (activo) S.clic(); return activo; },
   };
+})();
+
+
+/* =========================================================
+   FONDO ANIMADO — paisaje pixel-art en bucle
+   Se dibuja a baja resolución (1 píxel = PX píxeles de pantalla) y se amplía
+   sin suavizado: aspecto pixel-art y muy poco consumo.
+   ========================================================= */
+(() => {
+  const cv = document.getElementById('fondo');
+  if (!cv || !cv.getContext) return;
+  const ctx = cv.getContext('2d');
+  const PX = 3, FPS = 30, TILE = 360;                 // TILE: ancho en píxeles bajos de cada tramo del paisaje que se repite
+  const reducir = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let W = 0, H = 0, raf = null, ultimo = 0, t = 0, estrellas = [], gemas = [], ventanas = [];
+  let semilla = 7;
+  const rnd = () => (semilla = (semilla * 16807) % 2147483647) / 2147483647;
+
+  const C = {
+    cieloArriba:'#0a0b18', cieloAbajo:'#241650',
+    lejos:'#1d1745', lejosBrillo:'#2a2160', cerca:'#110e29', suelo:'#0b0a1d',
+    luna:'#ffd277', estrella:['#ffffff','#cfd3ff','#ffd277'],
+    gemas:['#a3acbf','#3b82f6','#a855f7','#f5a524'], ventana:'#ffcf6e',
+  };
+
+  // Altura periódica (se repite cada TILE): suma de senos con frecuencias enteras
+  const onda = (x, capas) => capas.reduce((a, [amp, k, fase]) => a + amp * Math.sin(2*Math.PI*k*x/TILE + fase), 0);
+  const MONTE_LEJOS = [[14,1,0.3],[8,3,1.7],[4,7,0.9],[2,13,2.4]];
+  const MONTE_CERCA = [[9,2,2.1],[5,5,0.4],[2,11,1.3]];
+  // Castillo (en la capa cercana): torres y almenas definidas sobre el tramo
+  const CASTILLO = {x:220, partes:[[0,10,34],[10,14,24],[24,8,40],[32,16,26],[48,10,32]]}; // [desdeX, ancho, alto]
+
+  function alturaCastillo(xx){
+    const r = xx - CASTILLO.x; if (r < 0 || r >= 58) return 0;
+    for (const [dx, w, h] of CASTILLO.partes){
+      if (r >= dx && r < dx + w){
+        const enAlmena = (h >= 30) && ((r - dx) % 3 === 1) ;        // almenas en las torres altas
+        return h - (enAlmena ? 2 : 0);
+      }
+    }
+    return 0;
+  }
+
+  function construir(){
+    semilla = 7;
+    estrellas = Array.from({length: Math.max(30, Math.round(W*H/170))}, () => ({
+      x: rnd()*W, y: rnd()*H*0.7, fase: rnd()*Math.PI*2, vel: 0.6 + rnd()*1.6,
+      grande: rnd() < 0.1, col: C.estrella[rnd() < 0.15 ? 2 : rnd() < 0.5 ? 1 : 0],
+    }));
+    ventanas = [];
+    CASTILLO.partes.forEach(([dx, w, h]) => {
+      for (let yy = 8; yy < h - 4; yy += 7) for (let xx = 3; xx < w - 2; xx += 5)
+        ventanas.push({x: CASTILLO.x + dx + xx, y: yy, fase: rnd()*Math.PI*2, vel: 0.15 + rnd()*0.35});
+    });
+    gemas = [];
+  }
+
+  function ajustar(){
+    W = Math.ceil(innerWidth / PX); H = Math.ceil(innerHeight / PX);
+    cv.width = W; cv.height = H; ctx.imageSmoothingEnabled = false;
+    construir(); dibujar();
+  }
+
+  function pix(x, y, col, w=1, h=1){ ctx.fillStyle = col; ctx.fillRect(Math.round(x), Math.round(y), w, h); }
+
+  function dibujar(){
+    // cielo
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, C.cieloArriba); g.addColorStop(1, C.cieloAbajo);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+    // luna con halo (fija)
+    const lx = Math.round(W*0.82), ly = Math.round(H*0.16), r = Math.max(6, Math.round(Math.min(W,H)*0.035));
+    ctx.globalAlpha = 0.07; ctx.fillStyle = C.luna;
+    ctx.beginPath(); ctx.arc(lx, ly, r*3.2, 0, Math.PI*2); ctx.fill();
+    ctx.globalAlpha = 0.12; ctx.beginPath(); ctx.arc(lx, ly, r*1.9, 0, Math.PI*2); ctx.fill();
+    ctx.globalAlpha = 0.9;
+    for (let y=-r; y<=r; y++) for (let x=-r; x<=r; x++) if (x*x+y*y <= r*r && !((x-r*0.35)**2+(y+r*0.2)**2 < (r*0.75)**2)) pix(lx+x, ly+y, C.luna);
+    ctx.globalAlpha = 1;
+
+    // estrellas que parpadean
+    estrellas.forEach(s => {
+      const a = 0.35 + 0.65 * (0.5 + 0.5*Math.sin(t*s.vel + s.fase));
+      ctx.globalAlpha = a;
+      if (s.grande && a > 0.85){ pix(s.x-1, s.y, s.col, 3, 1); pix(s.x, s.y-1, s.col, 1, 3); }
+      else pix(s.x, s.y, s.col);
+    });
+    ctx.globalAlpha = 1;
+
+    // estrella fugaz cada ~14 s
+    const ciclo = (t % 14) / 14;
+    if (ciclo < 0.08){
+      const p = ciclo / 0.08, sx = W*0.15 + p*W*0.35, sy = H*0.08 + p*H*0.12;
+      for (let k=0; k<10; k++){ ctx.globalAlpha = (1-p)*(1-k/10); pix(sx - k*2, sy - k, '#ffffff', 2, 1); }
+      ctx.globalAlpha = 1;
+    }
+
+    // montañas lejanas (lentas)
+    const off1 = (t * 4) % TILE, base1 = H*0.70;
+    for (let x=0; x<W; x++){
+      const xx = (x + off1) % TILE, h = 26 + onda(xx, MONTE_LEJOS);
+      const top = Math.round(base1 - h);
+      pix(x, top, C.lejosBrillo); pix(x, top+1, C.lejos, 1, H-top);
+    }
+
+    // brillo dorado en el horizonte
+    const hz = ctx.createLinearGradient(0, H*0.62, 0, H*0.86);
+    hz.addColorStop(0, 'rgba(245,165,36,0)'); hz.addColorStop(0.6, 'rgba(245,165,36,0.07)'); hz.addColorStop(1, 'rgba(245,165,36,0)');
+    ctx.fillStyle = hz; ctx.fillRect(0, H*0.62, W, H*0.24);
+
+    // colinas cercanas con castillo (más rápidas)
+    const off2 = (t * 9) % TILE, base2 = H*0.84;
+    for (let x=0; x<W; x++){
+      const xx = Math.floor((x + off2) % TILE), h = 14 + onda(xx, MONTE_CERCA) + alturaCastillo(xx);
+      const top = Math.round(base2 - h);
+      pix(x, top, C.cerca, 1, H-top);
+    }
+    // ventanas del castillo que se encienden y apagan
+    ventanas.forEach(v => {
+      const sx = ((v.x - off2) % TILE + TILE) % TILE;
+      for (let rep = sx; rep < W + TILE; rep += TILE){
+        if (rep < 0 || rep >= W) continue;
+        const xx = Math.floor((rep + off2) % TILE);
+        const top = Math.round(base2 - (14 + onda(xx, MONTE_CERCA)));
+        const on = Math.sin(t*v.vel + v.fase) > -0.2;
+        if (on){ ctx.globalAlpha = 0.85; pix(rep, top - v.y, C.ventana, 1, 2); ctx.globalAlpha = 1; }
+      }
+    });
+    // suelo
+    pix(0, Math.round(H*0.93), C.suelo, W, H);
+
+    // gemas de rareza que suben flotando
+    if (!reducir && Math.random() < 0.06 && gemas.length < 26){
+      const r = Math.random();
+      gemas.push({x: Math.random()*W, y: H*0.95, vy: 3 + Math.random()*5, f: Math.random()*6.28,
+                  col: C.gemas[r < 0.5 ? 0 : r < 0.78 ? 1 : r < 0.94 ? 2 : 3], vida: 0});
+    }
+    gemas = gemas.filter(gm => gm.y > H*0.05);
+    gemas.forEach(gm => {
+      gm.y -= gm.vy / FPS; gm.vida += 1/FPS;
+      const x = gm.x + Math.sin(t*1.4 + gm.f)*3, a = Math.min(1, gm.vida) * Math.min(1, (gm.y - H*0.05)/(H*0.25));
+      ctx.globalAlpha = Math.max(0, a) * 0.75;
+      pix(x, gm.y-1, gm.col); pix(x-1, gm.y, gm.col, 3, 1); pix(x, gm.y+1, gm.col);   // rombo de 3×3
+      ctx.globalAlpha = Math.max(0, a) * 0.35; pix(x, gm.y, '#ffffff');
+      ctx.globalAlpha = 1;
+    });
+
+    // murciélago que cruza cada ~22 s
+    const cb = (t % 22) / 22;
+    if (cb < 0.35){
+      const p = cb / 0.35, bx = -10 + p*(W+20), by = H*0.3 + Math.sin(p*12)*6, ala = Math.floor(t*8) % 2;
+      const col = '#05050f';
+      pix(bx, by, col, 3, 2); pix(bx+1, by-1, col);
+      if (ala){ pix(bx-3, by-1, col, 3, 1); pix(bx+3, by-1, col, 3, 1); pix(bx-4, by-2, col); pix(bx+6, by-2, col); }
+      else    { pix(bx-3, by+1, col, 3, 1); pix(bx+3, by+1, col, 3, 1); pix(bx-4, by+2, col); pix(bx+6, by+2, col); }
+    }
+
+    // velo oscuro para que el texto siempre se lea bien
+    ctx.fillStyle = 'rgba(8,9,20,0.28)'; ctx.fillRect(0, 0, W, H);
+  }
+
+  function bucle(ahora){
+    raf = requestAnimationFrame(bucle);
+    if (ahora - ultimo < 1000/FPS) return;
+    t += Math.min(0.1, (ahora - (ultimo || ahora)) / 1000); ultimo = ahora;
+    dibujar();
+  }
+  function arrancar(){ if (!raf && !reducir){ ultimo = 0; raf = requestAnimationFrame(bucle); } }
+  function parar(){ if (raf){ cancelAnimationFrame(raf); raf = null; } }
+
+  let tAjuste = null;
+  window.addEventListener('resize', () => { clearTimeout(tAjuste); tAjuste = setTimeout(ajustar, 150); });
+  document.addEventListener('visibilitychange', () => document.hidden ? parar() : arrancar());
+  ajustar(); arrancar();
 })();
 
 
