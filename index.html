@@ -1000,7 +1000,8 @@ const Sonido = (() => {
   const cv = document.getElementById('fondo');
   if (!cv || !cv.getContext) return;
   const ctx = cv.getContext('2d');
-  const PX = 3, FPS = 30, TILE = 360;                 // TILE: ancho en píxeles bajos de cada tramo del paisaje que se repite
+  const PX = 3, FPS = 30, TILE = 360;
+  const VEL_LEJOS = 1.5, VEL_CERCA = 3.5;            // píxeles por segundo: lento y a saltos de 1 píxel exacto                 // TILE: ancho en píxeles bajos de cada tramo del paisaje que se repite
   const reducir = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   let W = 0, H = 0, raf = null, ultimo = 0, t = 0, estrellas = [], gemas = [], ventanas = [];
   let semilla = 7;
@@ -1034,13 +1035,13 @@ const Sonido = (() => {
   function construir(){
     semilla = 7;
     estrellas = Array.from({length: Math.max(30, Math.round(W*H/170))}, () => ({
-      x: rnd()*W, y: rnd()*H*0.7, fase: rnd()*Math.PI*2, vel: 0.6 + rnd()*1.6,
+      x: Math.floor(rnd()*W), y: Math.floor(rnd()*H*0.7), fase: rnd()*Math.PI*2, vel: 0.35 + rnd()*0.8,
       grande: rnd() < 0.1, col: C.estrella[rnd() < 0.15 ? 2 : rnd() < 0.5 ? 1 : 0],
     }));
     ventanas = [];
     CASTILLO.partes.forEach(([dx, w, h]) => {
       for (let yy = 8; yy < h - 4; yy += 7) for (let xx = 3; xx < w - 2; xx += 5)
-        ventanas.push({x: CASTILLO.x + dx + xx, y: yy, fase: rnd()*Math.PI*2, vel: 0.15 + rnd()*0.35});
+        ventanas.push({x: CASTILLO.x + dx + xx, y: yy, fase: rnd()*Math.PI*2, vel: 0.08 + rnd()*0.2});
     });
     gemas = [];
   }
@@ -1078,17 +1079,17 @@ const Sonido = (() => {
     ctx.globalAlpha = 1;
 
     // estrella fugaz cada ~14 s
-    const ciclo = (t % 14) / 14;
-    if (ciclo < 0.08){
-      const p = ciclo / 0.08, sx = W*0.15 + p*W*0.35, sy = H*0.08 + p*H*0.12;
+    const ciclo = (t % 18) / 18;
+    if (ciclo < 0.07){
+      const p = ciclo / 0.07, sx = W*0.15 + p*W*0.35, sy = H*0.08 + p*H*0.12;
       for (let k=0; k<10; k++){ ctx.globalAlpha = (1-p)*(1-k/10); pix(sx - k*2, sy - k, '#ffffff', 2, 1); }
       ctx.globalAlpha = 1;
     }
 
     // montañas lejanas (lentas)
-    const off1 = (t * 4) % TILE, base1 = H*0.70;
+    const off1 = Math.floor(t * VEL_LEJOS) % TILE, base1 = Math.round(H*0.70);
     for (let x=0; x<W; x++){
-      const xx = (x + off1) % TILE, h = 26 + onda(xx, MONTE_LEJOS);
+      const xx = (x + off1) % TILE, h = Math.round(26 + onda(xx, MONTE_LEJOS));
       const top = Math.round(base1 - h);
       pix(x, top, C.lejosBrillo); pix(x, top+1, C.lejos, 1, H-top);
     }
@@ -1099,9 +1100,9 @@ const Sonido = (() => {
     ctx.fillStyle = hz; ctx.fillRect(0, H*0.62, W, H*0.24);
 
     // colinas cercanas con castillo (más rápidas)
-    const off2 = (t * 9) % TILE, base2 = H*0.84;
+    const off2 = Math.floor(t * VEL_CERCA) % TILE, base2 = Math.round(H*0.84);
     for (let x=0; x<W; x++){
-      const xx = Math.floor((x + off2) % TILE), h = 14 + onda(xx, MONTE_CERCA) + alturaCastillo(xx);
+      const xx = (x + off2) % TILE, h = Math.round(14 + onda(xx, MONTE_CERCA)) + alturaCastillo(xx);
       const top = Math.round(base2 - h);
       pix(x, top, C.cerca, 1, H-top);
     }
@@ -1110,8 +1111,8 @@ const Sonido = (() => {
       const sx = ((v.x - off2) % TILE + TILE) % TILE;
       for (let rep = sx; rep < W + TILE; rep += TILE){
         if (rep < 0 || rep >= W) continue;
-        const xx = Math.floor((rep + off2) % TILE);
-        const top = Math.round(base2 - (14 + onda(xx, MONTE_CERCA)));
+        const xx = (rep + off2) % TILE;
+        const top = base2 - Math.round(14 + onda(xx, MONTE_CERCA));
         const on = Math.sin(t*v.vel + v.fase) > -0.2;
         if (on){ ctx.globalAlpha = 0.85; pix(rep, top - v.y, C.ventana, 1, 2); ctx.globalAlpha = 1; }
       }
@@ -1120,25 +1121,26 @@ const Sonido = (() => {
     pix(0, Math.round(H*0.93), C.suelo, W, H);
 
     // gemas de rareza que suben flotando
-    if (!reducir && Math.random() < 0.06 && gemas.length < 26){
+    if (!reducir && Math.random() < 0.035 && gemas.length < 20){
       const r = Math.random();
-      gemas.push({x: Math.random()*W, y: H*0.95, vy: 3 + Math.random()*5, f: Math.random()*6.28,
+      gemas.push({x: Math.floor(Math.random()*W), y: H*0.95, vy: 1.8 + Math.random()*2.6, f: Math.random()*6.28,
                   col: C.gemas[r < 0.5 ? 0 : r < 0.78 ? 1 : r < 0.94 ? 2 : 3], vida: 0});
     }
     gemas = gemas.filter(gm => gm.y > H*0.05);
     gemas.forEach(gm => {
       gm.y -= gm.vy / FPS; gm.vida += 1/FPS;
-      const x = gm.x + Math.sin(t*1.4 + gm.f)*3, a = Math.min(1, gm.vida) * Math.min(1, (gm.y - H*0.05)/(H*0.25));
+      const x = gm.x + Math.round(Math.sin(t*0.7 + gm.f)*2), a = Math.min(1, gm.vida) * Math.min(1, (gm.y - H*0.05)/(H*0.25));
       ctx.globalAlpha = Math.max(0, a) * 0.75;
-      pix(x, gm.y-1, gm.col); pix(x-1, gm.y, gm.col, 3, 1); pix(x, gm.y+1, gm.col);   // rombo de 3×3
-      ctx.globalAlpha = Math.max(0, a) * 0.35; pix(x, gm.y, '#ffffff');
+      const gy = Math.round(gm.y);
+      pix(x, gy-1, gm.col); pix(x-1, gy, gm.col, 3, 1); pix(x, gy+1, gm.col);   // rombo de 3×3
+      ctx.globalAlpha = Math.max(0, a) * 0.35; pix(x, gy, '#ffffff');
       ctx.globalAlpha = 1;
     });
 
     // murciélago que cruza cada ~22 s
-    const cb = (t % 22) / 22;
-    if (cb < 0.35){
-      const p = cb / 0.35, bx = -10 + p*(W+20), by = H*0.3 + Math.sin(p*12)*6, ala = Math.floor(t*8) % 2;
+    const cb = (t % 34) / 34;
+    if (cb < 0.4){
+      const p = cb / 0.4, bx = Math.round(-10 + p*(W+20)), by = Math.round(H*0.3 + Math.sin(p*9)*5), ala = Math.floor(t*5) % 2;
       const col = '#05050f';
       pix(bx, by, col, 3, 2); pix(bx+1, by-1, col);
       if (ala){ pix(bx-3, by-1, col, 3, 1); pix(bx+3, by-1, col, 3, 1); pix(bx-4, by-2, col); pix(bx+6, by-2, col); }
@@ -1152,7 +1154,8 @@ const Sonido = (() => {
   function bucle(ahora){
     raf = requestAnimationFrame(bucle);
     if (ahora - ultimo < 1000/FPS) return;
-    t += Math.min(0.1, (ahora - (ultimo || ahora)) / 1000); ultimo = ahora;
+    const dt = (ahora - (ultimo || ahora)) / 1000; ultimo = ahora;
+    t += Math.min(0.1, dt);
     dibujar();
   }
   function arrancar(){ if (!raf && !reducir){ ultimo = 0; raf = requestAnimationFrame(bucle); } }
