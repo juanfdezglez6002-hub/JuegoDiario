@@ -79,6 +79,21 @@ create index if not exists participaciones_votos on privado.participaciones (pre
 alter table privado.participaciones add column if not exists red text;   -- huella de red (hash), nunca la IP
 create index if not exists participaciones_red on privado.participaciones (dia, pregunta_id, red);
 
+-- Respuestas que los jugadores escribieron y el juego NO reconoció.
+-- Sirve para descubrir alias que faltan ("netherita", "tilted", nombres en inglés…).
+-- NO se guarda quién lo escribió: solo el texto, cuántas veces y cuándo.
+create table if not exists privado.rechazos (
+  pregunta_id text not null references privado.preguntas(id),
+  clave       text not null,                    -- texto normalizado (agrupa mayúsculas, tildes y erratas de formato)
+  texto       text not null,                    -- tal y como lo escribió el primer jugador
+  veces       int not null default 1,
+  primera     timestamptz not null default now(),
+  ultima      timestamptz not null default now(),
+  ignorar     boolean not null default false,   -- ponlo a true para que no vuelva a salir en la lista de revisión
+  primary key (pregunta_id, clave)
+);
+create index if not exists rechazos_veces on privado.rechazos (veces desc);
+
 -- sal diaria para la huella de red (se borra pasado un día: después la huella ya no se puede relacionar con ninguna IP)
 create table if not exists privado.sal_diaria (
   dia date primary key,
@@ -97,6 +112,7 @@ alter table privado.preguntas       enable row level security;
 alter table privado.respuestas      enable row level security;
 alter table privado.retos           enable row level security;
 alter table privado.participaciones enable row level security;
+alter table privado.rechazos        enable row level security;
 alter table privado.sal_diaria      enable row level security;
 alter table privado.peticiones      enable row level security;
 revoke all on all tables in schema privado from public, anon, authenticated;
@@ -277,6 +293,55 @@ language sql stable as $$
   where pa.dia = p_dia and pa.pregunta_id = p_pregunta and pa.jugador = p_jugador
 $$;
 
+-- Anota una respuesta no reconocida. La llaman responder() y responder_practica().
+create or replace function privado.anotar_rechazo(p_pregunta text, p_texto text) returns void
+language plpgsql as $$
+declare k text := privado.norm(p_texto);
+begin
+  if length(k) < 2 or length(k) > 40 then return; end if;   -- ignora pulsaciones sueltas y churros
+  insert into privado.rechazos (pregunta_id, clave, texto) values (p_pregunta, k, left(btrim(p_texto), 60))
+  on conflict (pregunta_id, clave) do update set veces = privado.rechazos.veces + 1, ultima = now();
+exception when others then return;
+end $$;
+
+-- ---------- REVISAR LO QUE LA GENTE ESCRIBE (ejecútalo tú en el SQL Editor) ----------
+--   select * from privado.rechazos_top();          · lo más escrito y no reconocido
+--   select * from privado.rechazos_top(3);         · solo lo que se repitió 3 veces o más
+--   select * from privado.rechazos_resumen();      · qué preguntas generan más rechazos
+-- Lo que ya hayas resuelto añadiendo un alias desaparece solo de la lista.
+-- Para esconder algo que no es una respuesta válida:
+--   update privado.rechazos set ignorar = true where clave = 'loquesea';
+create or replace function privado.rechazos_top(p_min int default 1, p_limite int default 100)
+returns table (juego text, pregunta text, escribieron text, veces int, ultima date, mas_parecido text, distancia int)
+language sql stable as $$
+  select j.nombre, p.texto, r.texto, r.veces, r.ultima::date, c.nombre, c.d
+    from privado.rechazos r
+    join privado.preguntas p on p.id = r.pregunta_id
+    join privado.juegos   j on j.id = p.juego_id
+    left join lateral (
+      select x.nombre, min(extensions.levenshtein(r.clave, k))::int d
+        from privado.respuestas x, unnest(x.claves) k
+       where x.pregunta_id = r.pregunta_id and x.activo
+       group by x.nombre order by d limit 1
+    ) c on true
+   where not r.ignorar and r.veces >= p_min
+     and privado.buscar(r.pregunta_id, r.texto) is null
+   order by r.veces desc, r.ultima desc
+   limit p_limite
+$$;
+
+create or replace function privado.rechazos_resumen()
+returns table (juego text, pregunta text, textos_distintos int, intentos_totales int)
+language sql stable as $$
+  select j.nombre, p.texto, count(*)::int, sum(r.veces)::int
+    from privado.rechazos r
+    join privado.preguntas p on p.id = r.pregunta_id
+    join privado.juegos   j on j.id = p.juego_id
+   where not r.ignorar and privado.buscar(r.pregunta_id, r.texto) is null
+   group by j.nombre, p.texto
+   order by 4 desc
+$$;
+
 -- =====================================================================
 --  FUNCIONES PÚBLICAS (las que llama la web)
 -- =====================================================================
@@ -362,6 +427,7 @@ begin
   if pa.intentos >= privado.ajuste('max_intentos') then return jsonb_build_object('valida', false, 'error', 'demasiados_intentos'); end if;
   rid := privado.buscar(p_pregunta, p_texto);
   if rid is null then
+    perform privado.anotar_rechazo(p_pregunta, p_texto);
     update privado.participaciones set intentos = intentos + 1 where dia = d and pregunta_id = p_pregunta and jugador = p_jugador;
     return jsonb_build_object('valida', false, 'estado', 'pendiente');
   end if;
@@ -422,14 +488,14 @@ language sql volatile security definer set search_path = '' as $$
 $$;
 
 create or replace function public.responder_practica(p_pregunta text, p_texto text) returns jsonb
-language plpgsql volatile security definer set search_path = '' as $$
+language plpgsql volatile security definer set search_path = '' as $$  -- volatile: anota las respuestas no reconocidas
 declare rid bigint; c record;
 begin
   perform privado.frenar();
   if exists (select 1 from privado.retos r where r.pregunta_id = p_pregunta and r.dia between privado.hoy() and privado.hoy() + privado.ajuste('margen_practica')::int) then raise exception 'no_disponible'; end if;
   if p_texto is null or length(p_texto) = 0 or length(p_texto) > 60 then return jsonb_build_object('valida', false); end if;
   rid := privado.buscar(p_pregunta, p_texto);
-  if rid is null then return jsonb_build_object('valida', false); end if;
+  if rid is null then perform privado.anotar_rechazo(p_pregunta, p_texto); return jsonb_build_object('valida', false); end if;
   select * into c from privado.calcular(p_pregunta, privado.hoy()) k where k.respuesta_id = rid;
   return jsonb_build_object('valida', true, 'estado', 'ok', 'respuesta', c.nombre, 'pct', c.pct, 'puntos', c.puntos, 'nivel', c.nivel);
 end $$;

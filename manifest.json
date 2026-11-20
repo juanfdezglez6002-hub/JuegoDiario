@@ -1,0 +1,17 @@
+{
+  "name": "LEGENDARIO · el reto diario de videojuegos",
+  "short_name": "LEGENDARIO",
+  "description": "Cada día 5 preguntas de videojuegos. Cuanto menos gente diga lo mismo que tú, más daño haces al jefe del día.",
+  "lang": "es",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0c0d1a",
+  "theme_color": "#0c0d1a",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

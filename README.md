@@ -29,6 +29,22 @@ Los puntos son provisionales durante el día y definitivos al día siguiente.
 
 Si `index.html` no tiene configurado el servidor, funciona en **modo demo** con unas preguntas de prueba.
 
+## Revisar las respuestas que el juego rechaza
+
+Cuando alguien escribe una respuesta que no reconocemos, se guarda el texto (sin relacionarlo con el jugador). Para revisarlo, en el **SQL Editor** de Supabase:
+
+```sql
+select * from privado.rechazos_top();      -- lo más escrito y no reconocido, con la respuesta más parecida
+select * from privado.rechazos_top(3);     -- solo lo que se repitió 3 veces o más
+select * from privado.rechazos_resumen();  -- qué preguntas generan más rechazos
+```
+
+Al añadir el alias que faltaba, esa entrada desaparece sola de la lista. Para esconder algo que no es una respuesta válida:
+
+```sql
+update privado.rechazos set ignorar = true where clave = 'loquesea';
+```
+
 ---
 
 Proyecto independiente de fans, sin relación oficial con ninguno de los juegos mencionados. Todas las marcas pertenecen a sus respectivos propietarios.

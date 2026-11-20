@@ -5,6 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>LEGENDARIO · el reto diario de videojuegos donde gana la respuesta más rara</title>
 <meta name="description" content="LEGENDARIO es un juego diario gratuito de videojuegos: cada día 5 preguntas sobre Minecraft, Pokémon, GTA V y más. Cuanto más rara sea tu respuesta, más puntos consigues.">
+<meta name="theme-color" content="#0c0d1a">
+<link rel="canonical" href="https://juanfdezglez6002-hub.github.io/JuegoDiario/">
+
+<!-- ====== VISTA PREVIA AL COMPARTIR (WhatsApp, Discord, X…) ======
+     ⚠️ Las 3 direcciones de aquí abajo tienen que ser ABSOLUTAS y apuntar a tu web.
+     Si algún día cambias de dominio, cámbialas aquí y en <link rel="canonical"> de arriba. -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LEGENDARIO">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="LEGENDARIO · el reto diario de videojuegos">
+<meta property="og:description" content="5 preguntas al día. Cuanta menos gente diga lo mismo que tú, más daño haces. ¿Podrás derrotar al jefe de hoy?">
+<meta property="og:url" content="https://juanfdezglez6002-hub.github.io/JuegoDiario/">
+<meta property="og:image" content="https://juanfdezglez6002-hub.github.io/JuegoDiario/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="LEGENDARIO, el reto diario de videojuegos, con tres jefes pixel-art">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="LEGENDARIO · el reto diario de videojuegos">
+<meta name="twitter:description" content="5 preguntas al día. Cuanta menos gente diga lo mismo que tú, más daño haces. ¿Podrás derrotar al jefe de hoy?">
+<meta name="twitter:image" content="https://juanfdezglez6002-hub.github.io/JuegoDiario/og.png">
+
+<!-- ====== ICONOS Y «AÑADIR A PANTALLA DE INICIO» ====== -->
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-title" content="LEGENDARIO">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
@@ -461,6 +489,7 @@
       <ul>
         <li><b>En tu navegador</b> (localStorage) guardamos un identificador aleatorio que se crea la primera vez que juegas, tu racha y tus estadísticas. Puedes borrarlo cuando quieras desde los ajustes del navegador.</li>
         <li><b>En nuestro servidor</b> guardamos tus respuestas del reto diario junto a ese identificador aleatorio, el día y el tiempo que tardaste. Lo usamos solo para calcular la rareza de cada respuesta y tus puntos. Ese identificador no está ligado a tu nombre ni a ninguna cuenta.</li>
+        <li><b>Para corregir errores del juego</b>, cuando escribes una respuesta que no reconocemos guardamos ese texto junto a la pregunta, sin relacionarlo contigo ni con tu identificador. Lo revisamos para añadir respuestas y formas de escribirlas que nos falten. Por eso te pedimos que escribas solo respuestas al juego y nada personal.</li>
         <li><b>Para evitar trampas y abusos</b> (votos falsos, bots), junto a cada respuesta guardamos una <b>huella de red</b>: un código cifrado que se calcula a partir de tu dirección IP y de una clave que cambia cada día. <b>Nunca guardamos tu IP</b>, y la clave de cada día se borra pasadas 48 horas, de forma que después la huella ya no se puede relacionar con ninguna IP. Durante el día la usamos para limitar cuántas personas pueden jugar la misma pregunta desde una misma conexión, frenar a quien hace demasiadas peticiones por minuto y que una misma conexión no pueda votar varias veces lo mismo.</li>
         <li>El servidor está alojado en <b>Supabase</b>, que como cualquier proveedor puede registrar datos técnicos de la conexión (por ejemplo, la dirección IP) por motivos de seguridad.</li>
       </ul>
@@ -539,6 +568,10 @@
    Si lo dejas vacío, la web funciona en MODO DEMO (sin servidor).
    ========================================================= */
 const CONFIG = {
+  /* Dirección pública de la web. Se añade al final del resultado que comparten los
+     jugadores, para que sus amigos sepan dónde jugar. Si la dejas vacía se usa la
+     dirección desde la que se está abriendo la web. */
+  URL_WEB: 'https://juanfdezglez6002-hub.github.io/JuegoDiario/',
   SUPABASE_URL: 'https://qldaxtyfapopdneyrnnn.supabase.co',
   SUPABASE_KEY: 'sb_publishable_nsN5F1GRlNZu_oSq95GUxg_iZPsObfL',
   /* ANUNCIOS (Google AdSense). Cuando te aprueben:
@@ -996,10 +1029,11 @@ const Sonido = (() => {
    Se dibuja a baja resolución (1 píxel = PX píxeles de pantalla) y se amplía
    sin suavizado: aspecto pixel-art y muy poco consumo.
    ========================================================= */
-(() => {
+(() => { try {
   const cv = document.getElementById('fondo');
-  if (!cv || !cv.getContext) return;
+  if (!cv || typeof cv.getContext !== 'function') return;
   const ctx = cv.getContext('2d');
+  if (!ctx || typeof ctx.createLinearGradient !== 'function') return;   // navegador sin canvas 2D: la web sigue funcionando sin fondo
   const PX = 3, FPS = 30, TILE = 360;
   const VEL_LEJOS = 1.5, VEL_CERCA = 3.5;            // píxeles por segundo: lento y a saltos de 1 píxel exacto                 // TILE: ancho en píxeles bajos de cada tramo del paisaje que se repite
   const reducir = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1165,7 +1199,7 @@ const Sonido = (() => {
   window.addEventListener('resize', () => { clearTimeout(tAjuste); tAjuste = setTimeout(ajustar, 150); });
   document.addEventListener('visibilitychange', () => document.hidden ? parar() : arrancar());
   ajustar(); arrancar();
-})();
+} catch (e) { /* el fondo es decorativo: si falla, el juego debe seguir funcionando */ } })();
 
 
 /* ---------- utilidades ---------- */
@@ -1178,6 +1212,8 @@ const store = {
   get(k,def){ try{ const v=localStorage.getItem(PREFIJO+k); return v?JSON.parse(v):def; }catch(e){ return def; } },
   set(k,v){ try{ localStorage.setItem(PREFIJO+k,JSON.stringify(v)); }catch(e){} }
 };
+// Dirección que se añade al resultado compartido
+const urlWeb = () => (CONFIG.URL_WEB || (location.origin + location.pathname)).replace(/[?#].*$/, '');
 const pctTxt = p => (p==null ? '–' : String(Math.round(p*10)/10).replace('.',',')) + '%';
 const secTxt = s => String(s ?? 0).replace('.',',') + ' s';
 function uuid(){
@@ -1536,7 +1572,7 @@ function shareText(definitivo){
   const est = b.resto<=0 ? `¡DERROTADO! ${b.daño} de daño` : `se escapó con ${b.resto}/${b.j.pv} PV`;
   let liga = '';
   if (S.modo==='diario'){ const L = ligaEstado(); liga = L.fase==='clasif' ? `\n🎯 Clasificación ${L.clasif}/${LIGA_CLASIF}` : `\n${LIGAS[L.idx].i} Liga ${LIGAS[L.idx].n}`; }
-  return `${head}${S.modo==='practica'||definitivo?'':' (provisional)'}\n${b.j.promo?'🔥 Partida de ascenso\n':''}⚔️ ${b.j.n}: ${est}\n${emojiRow()}${liga}`;
+  return `${head}${S.modo==='practica'||definitivo?'':' (provisional)'}\n${b.j.promo?'🔥 Partida de ascenso\n':''}⚔️ ${b.j.n}: ${est}\n${emojiRow()}${liga}\n\n${urlWeb()}`;
 }
 function saveStats(){
   const st=store.get('legendario-stats',{played:0,streak:0,maxStreak:0,best:0,sum:0,lastDay:-1});
@@ -1605,7 +1641,7 @@ async function showResults(diaPasado){
         <div class="emojis">${emojiRow()}</div>
         ${ligaBloque}
         <div class="share-row">
-          <button class="btn" id="share">Copiar resultado 📋</button>
+          <button class="btn" id="share">${navigator.share ? 'Compartir resultado 📣' : 'Copiar resultado 📋'}</button>
           ${S.modo!=='ayer'?`<button class="btn ghost" id="again">${S.modo==='practica'?'Otra partida de práctica':'Partida de práctica'}</button>`:''}
         </div>
         <textarea class="fallback" id="fallback" rows="4" readonly></textarea>
@@ -1620,6 +1656,11 @@ async function showResults(diaPasado){
   const sh=$('#share');
   if (sh) sh.addEventListener('click', async()=>{
     const txt=shareText(definitivo), m=$('#shareMsg');
+    Sonido.play('clic');
+    if (navigator.share){
+      try { await navigator.share({text: txt}); m.textContent=''; return; }
+      catch(e){ if (e && e.name === 'AbortError') return; }   // el usuario cerró el menú
+    }
     try{ await navigator.clipboard.writeText(txt); m.textContent='¡Copiado! Pégalo donde quieras.'; }
     catch(e){ const f=$('#fallback'); f.style.display='block'; f.value=txt; f.select(); m.textContent='Cópialo desde aquí:'; }
   });
